@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.orm import Session
@@ -16,7 +18,7 @@ def create_task(
     return task
 
 
-def get_tasks_with_done(db: Session) -> list[tuple[int, str, bool]]:
+def get_tasks_with_done(db: Session) -> list[tuple[int, str, date, bool]]:
     result: Result = db.execute(
         select(
             task_model.Task.id,
