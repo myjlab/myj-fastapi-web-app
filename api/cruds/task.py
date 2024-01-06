@@ -18,6 +18,33 @@ def create_task(
     return task
 
 
+def get_task(
+    db: Session,
+    task_id: int,
+) -> task_model.Task | None:
+    result: Result = db.execute(
+        select(task_model.Task).filter(task_model.Task.id == task_id)
+    )
+    return result.scalars().first()
+
+
+def get_task_with_done(
+    db: Session,
+    task_id: int,
+) -> tuple[int, str, date, bool] | None:
+    result: Result = db.execute(
+        select(
+            task_model.Task.id,
+            task_model.Task.title,
+            task_model.Task.due_date,
+            task_model.Done.id.isnot(None).label("done"),
+        )
+        .outerjoin(task_model.Done)
+        .filter(task_model.Task.id == task_id)
+    )
+    return result.first()
+
+
 def get_tasks_with_done(db: Session) -> list[tuple[int, str, date, bool]]:
     result: Result = db.execute(
         select(
@@ -29,16 +56,6 @@ def get_tasks_with_done(db: Session) -> list[tuple[int, str, date, bool]]:
     )
 
     return result.all()
-
-
-def get_task(
-    db: Session,
-    task_id: int,
-) -> task_model.Task | None:
-    result: Result = db.execute(
-        select(task_model.Task).filter(task_model.Task.id == task_id)
-    )
-    return result.scalars().first()
 
 
 def update_task(

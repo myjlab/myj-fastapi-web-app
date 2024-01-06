@@ -13,6 +13,14 @@ def list_tasks(db: Session = Depends(get_db)):
     return task_crud.get_tasks_with_done(db)
 
 
+@router.get("/tasks/{task_id}", response_model=task_schema.Task)
+def get_task(task_id: int, db: Session = Depends(get_db)):
+    task = task_crud.get_task_with_done(db, task_id=task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
+
+
 @router.post("/tasks", response_model=task_schema.TaskCreateResponse)
 def create_task(
     task_body: task_schema.TaskCreate,
