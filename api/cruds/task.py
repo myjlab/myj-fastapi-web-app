@@ -21,6 +21,7 @@ def get_tasks_with_done(db: Session) -> list[tuple[int, str, bool]]:
         select(
             task_model.Task.id,
             task_model.Task.title,
+            task_model.Task.due_date,
             task_model.Done.id.isnot(None).label("done"),
         ).outerjoin(task_model.Done)
     )
