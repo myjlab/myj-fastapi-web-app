@@ -1,5 +1,6 @@
 book_fastapi_sample/
 .vscode/
+db_back_up/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
