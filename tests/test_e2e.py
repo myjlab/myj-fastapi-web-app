@@ -10,56 +10,37 @@ import unittest
 from faker import Faker
 from fastapi import status
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
-from api.db import Base, get_db
+from api.db import Base
 from api.main import app
+from tests.utils import setup_testing_db
 
-# MARK: - setup test db
-
-TEST_DB_URL = "sqlite://"
-
-engine = create_engine(
-    TEST_DB_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine
-)
-
-
-# Override dependencies
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
-
-
-# MARK: - test cases
+test_app, engine = setup_testing_db(app)
 
 fake = Faker("ja_JP")
 
 
-class TestTaskRouter(unittest.TestCase):
+class AppTestCase(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         Base.metadata.drop_all(bind=engine)
 
     def setUp(self):
-        self.client = TestClient(app)
+        self.client = TestClient(test_app)
         Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
 
     def tearDown(self):
         Base.metadata.drop_all(bind=engine)
+
+    def create_user(self, data=None):
+        if data is None:
+            data = {
+                "email": fake.email(),
+                "password": fake.password(length=12),
+            }
+        res = self.client.post("/user", json=data)
+        return res
 
     def create_task(self, data=None):
         """Create a task and return the response"""
@@ -68,6 +49,15 @@ class TestTaskRouter(unittest.TestCase):
         res = self.client.post("/tasks", json=data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         return res
+
+
+class TestUserRouter(AppTestCase):
+    def test_create_user(self):
+        res = self.create_user()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+
+class TestTaskRouter(AppTestCase):
 
     def test_get_tasks_with_empty_db(self):
         res = self.client.get("/tasks")
