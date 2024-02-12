@@ -1,5 +1,4 @@
 from passlib.context import CryptContext
-
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.orm import Session
@@ -42,6 +41,6 @@ def authenticate_user(
     user = get_user_by_email(db, email)
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user.password):
         return False
     return user
