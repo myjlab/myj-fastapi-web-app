@@ -12,15 +12,15 @@ fastapi = "^0.91.0"
 uvicorn = { version = "^0.20.0", extras = ["standard"] }
 sqlalchemy = "^2.0.3"
 pymysql = "^1.0.2"
-passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = { extras = ["bcrypt"], version = "^1.7.4" }
+python-jose = { extras = ["cryptography"], version = "^3.3.0" }
 python-multipart = "^0.0.9"
+requests = "^2.31.0"
 
 
 [tool.poetry.group.dev.dependencies]
 faker = "^21.0.0"
 httpx = "^0.26.0"
-requests = "^2.31.0"
 
 [build-system]
 requires = ["poetry-core"]
