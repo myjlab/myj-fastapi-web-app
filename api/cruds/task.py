@@ -1,7 +1,5 @@
-from datetime import date
-
 from sqlalchemy import select
-from sqlalchemy.engine import Result
+from sqlalchemy.engine import Result, Row
 from sqlalchemy.orm import Session
 
 import api.models.task as task_model
@@ -9,9 +7,11 @@ import api.schemas.task as task_schema
 
 
 def create_task(
-    db: Session, task_create: task_schema.TaskCreate
+    db: Session,
+    task_create: task_schema.TaskCreate,
+    user_id: int,
 ) -> task_model.Task:
-    task = task_model.Task(**task_create.dict())
+    task = task_model.Task(**task_create.dict(), user_id=user_id)
     db.add(task)
     db.commit()
     db.refresh(task)
@@ -31,28 +31,35 @@ def get_task(
 def get_task_with_done(
     db: Session,
     task_id: int,
-) -> tuple[int, str, date, bool] | None:
+) -> Row | None:
     result: Result = db.execute(
         select(
             task_model.Task.id,
             task_model.Task.title,
             task_model.Task.due_date,
+            task_model.Task.user_id,
             task_model.Done.id.isnot(None).label("done"),
         )
-        .outerjoin(task_model.Done)
         .filter(task_model.Task.id == task_id)
+        .outerjoin(task_model.Done)
     )
     return result.first()
 
 
-def get_tasks_with_done(db: Session) -> list[tuple[int, str, date, bool]]:
+def get_multiple_tasks_with_done(
+    db: Session,
+    user_id: int,
+) -> list[Row]:
     result: Result = db.execute(
         select(
             task_model.Task.id,
             task_model.Task.title,
             task_model.Task.due_date,
+            task_model.Task.user_id,
             task_model.Done.id.isnot(None).label("done"),
-        ).outerjoin(task_model.Done)
+        )
+        .filter(task_model.Task.user_id == user_id)
+        .outerjoin(task_model.Done)
     )
 
     return result.all()
@@ -64,12 +71,13 @@ def update_task(
     original: task_model.Task,
 ) -> task_model.Task:
     original.title = task_create.title
+    original.due_date = task_create.due_date
     db.add(original)
     db.commit()
     db.refresh(original)
     return original
 
 
-def delete_task(db: Session, original: task_model.Task) -> None:
+def delete_task(db: Session, original: task_model.Task):
     db.delete(original)
     db.commit()
