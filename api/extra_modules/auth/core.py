@@ -6,7 +6,7 @@ from fastapi.security import APIKeyCookie, OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
-import api.auth.schema as auth_schemas
+import api.extra_modules.auth.schema as auth_schemas
 import api.cruds.user as user_crud
 from api.db import get_db
 

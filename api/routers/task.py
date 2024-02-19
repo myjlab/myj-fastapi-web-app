@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 
 import api.cruds.task as task_crud
 import api.schemas.task as task_schema
-from api.auth.core import get_current_user
 from api.db import get_db
+from api.extra_modules.auth.core import get_current_user
 from api.models.user import User as UserModel
 
 router = APIRouter()
