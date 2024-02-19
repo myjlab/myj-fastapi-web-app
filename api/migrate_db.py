@@ -56,15 +56,8 @@ def backup_database(
         json.dump(jsonable_encoder(data), f, ensure_ascii=False, indent=4)
 
 
-def reset_database(*, inspector, db_engine, db_session):
-    table_names = inspector.get_table_names()
-
-    with db_session() as session:
-        for table_name in table_names:
-            session.execute(text(f"DROP TABLE {table_name}"))
-
-        session.commit()
-
+def reset_database(*, db_engine):
+    Base.metadata.drop_all(bind=db_engine)
     Base.metadata.create_all(bind=db_engine)
 
 
@@ -84,9 +77,5 @@ if __name__ == "__main__":
             raise
 
     print("リセット中...")
-    reset_database(
-        inspector=inspector,
-        db_engine=db_engine,
-        db_session=db_session,
-    )
+    reset_database(db_engine=db_engine)
     print("完了")
