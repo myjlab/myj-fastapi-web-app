@@ -67,11 +67,19 @@ def get_multiple_tasks_with_done(
 
 def update_task(
     db: Session,
-    task_create: task_schema.TaskCreate,
+    task_create: task_schema.TaskDBUpdate,
     original: task_model.Task,
 ) -> task_model.Task:
-    original.title = task_create.title
-    original.due_date = task_create.due_date
+
+    if task_create.title is not None:
+        original.title = task_create.title
+
+    if task_create.due_date is not None:
+        original.due_date = task_create.due_date
+
+    if task_create.img_path is not None:
+        original.img_path = task_create.img_path
+
     db.add(original)
     db.commit()
     db.refresh(original)
