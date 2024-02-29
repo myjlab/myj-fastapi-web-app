@@ -5,6 +5,7 @@
 # sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
+from pathlib import Path
 import unittest
 
 from faker import Faker
@@ -347,6 +348,59 @@ class TestTaskRouter(AppTestCase):
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
         res = self.client.delete(f"/tasks/{task_id_2}/done")
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_add_image_to_task(self):
+        self.create_user_and_login()
+
+        fake_image = fake.image()
+
+        created_task = self.create_task()
+        task_id = created_task.json()["id"]
+
+        res = self.client.put(
+            f"/tasks/{task_id}/image",
+            files={"image": ("image.jpg", fake_image, "image/jpeg")},
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        updated_task = res.json()
+        image_res = self.client.get(updated_task["img_path"])
+
+        self.assertEqual(fake_image, image_res.content)
+        # delete the image
+        Path(f".{updated_task['img_path']}").unlink()
+
+    def test_add_image_to_task_with_non_existent_task(self):
+        self.create_user_and_login()
+
+        fake_image = fake.image()
+
+        res = self.client.put(
+            "/tasks/1/image",
+            files={"image": ("image.jpg", fake_image, "image/jpeg")},
+        )
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_image_to_task_without_login(self):
+        fake_image = fake.image()
+
+        res = self.client.put(
+            "/tasks/1/image",
+            files={"image": ("image.jpg", fake_image, "image/jpeg")},
+        )
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_add_image_to_task_with_other_user_task(self):
+        self.create_user_and_login()
+        task_id = self.create_task().json()["id"]
+
+        self.create_user_and_login()
+        fake_image = fake.image()
+        res = self.client.put(
+            f"/tasks/{task_id}/image",
+            files={"image": ("image.jpg", fake_image, "image/jpeg")},
+        )
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 
