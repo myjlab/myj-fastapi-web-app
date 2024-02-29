@@ -60,7 +60,11 @@ def update_task(
     if task.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    return task_crud.update_task(db, task_body, original=task)
+    return task_crud.update_task(
+        db,
+        task_schema.TaskDBUpdate(**task_body.dict()),
+        original=task,
+    )
 
 
 @router.put(
