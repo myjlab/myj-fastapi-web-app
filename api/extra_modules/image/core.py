@@ -14,6 +14,14 @@ def save_image(
     save_dir: str = "images",
     filename: str | None = None,
 ) -> str:
+    """
+    ルーターから受け取った画像を保存する
+
+    Args:
+        image (UploadFile): 画像ファイル
+        save_dir (str, optional): 保存先ディレクトリ. Defaults to "images".
+        filename (str | None, optional): 保存ファイル名. Defaults to DateTime_hash.
+    """
     save_dir: Path = Path("static") / save_dir
 
     if not save_dir.exists():
