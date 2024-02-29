@@ -39,8 +39,8 @@ def create_access_token(
 
 def get_current_user(
     db: Session = Depends(get_db),
-    header_token: str = Depends(oauth2_scheme),
-    cookie_token: str = Depends(cookie_scheme),
+    header_token: str | None = Depends(oauth2_scheme),
+    cookie_token: str | None = Depends(cookie_scheme),
 ):
     """
     tokenを検証し、userを返します。
