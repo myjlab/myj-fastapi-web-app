@@ -6,4 +6,4 @@ if [ ! -e docker-compose.yaml ]; then
     exit 1
 fi
 
-docker compose exec demo-app python -m api.migrate_db
+docker compose exec demo-app poetry run python -m api.migrate_db

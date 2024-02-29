@@ -6,5 +6,6 @@ if [ ! -e docker-compose.yaml ]; then
     exit 1
 fi
 
-sh script/in-container-poetry.sh add "$@"
+docker compose exec demo-app poetry add "$@"
 # TODO: requirements.txtを更新する?
+# TODO: localのpoetry環境を更新する?
