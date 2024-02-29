@@ -65,6 +65,19 @@ def insert_mock_task():
                 raise Exception("Failed to insert mock task")
             res_list.append(res)
 
+        # randomly add image to some tasks
+        for res in random.sample(
+            res_list, num_of_tasks // random.randint(2, 5)
+        ):
+            image_res = requests.put(
+                f"{url}/{res.json()['id']}/image",
+                files={"image": ("image.png", fake.image(), "image/png")},
+                cookies=login_res.cookies,
+            )
+            if not image_res.ok:
+                print(res.json())
+                raise Exception("Failed to add image to mock task")
+
         # randomly done some tasks
         for res in random.sample(
             res_list, num_of_tasks // random.randint(2, 5)
