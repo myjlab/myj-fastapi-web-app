@@ -1,8 +1,10 @@
 version: '3'
 services:
-  demo-app:
-    image: myj-fastapi-web-app-backend
-    build: .
+  api:
+    image: myj-fastapi-web-app-api
+    build:
+      context: .
+      dockerfile: Dockerfile.api
     volumes:
       - .:/src
     ports:

@@ -6,5 +6,5 @@ if [ ! -e docker-compose.yaml ]; then
     exit 1
 fi
 
-docker compose exec demo-app poetry add "$@"
-docker compose exec demo-app poetry export --format requirements.txt --output requirements.txt
+docker compose exec api poetry add "$@"
+docker compose exec api poetry export --format requirements.txt --output requirements.txt
