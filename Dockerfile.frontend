@@ -4,6 +4,8 @@ RUN npm install -g browser-sync@~3.0.2
 
 WORKDIR /web
 
+# https://browsersync.io/
+# ファイルの変更を監視して、変更を即座にブラウザーに反映させるためのツール
 ENTRYPOINT ["browser-sync"]
 CMD ["start", "--server", "--files", "**/*", "--no-notify", "--no-open", "--no-ui", "--port", "3000", "--reload-delay", "500"]
 
