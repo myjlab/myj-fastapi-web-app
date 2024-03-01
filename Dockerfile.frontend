@@ -1,0 +1,11 @@
+FROM node:18.19-buster-slim
+
+RUN npm install -g browser-sync@~3.0.2
+
+WORKDIR /web
+
+ENTRYPOINT ["browser-sync"]
+CMD ["start", "--server", "--files", "**/*", "--no-notify", "--no-open", "--no-ui", "--port", "3000", "--reload-delay", "500"]
+
+EXPOSE 3000
+
