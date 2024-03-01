@@ -21,6 +21,8 @@ def save_image(
         image (UploadFile): 画像ファイル
         save_dir (str, optional): 保存先ディレクトリ. Defaults to "images".
         filename (str | None, optional): 保存ファイル名. Defaults to DateTime_hash.
+
+    !!! 画像以外のファイルを受け取った場合はエラーになる
     """
     save_dir: Path = Path("static") / save_dir
 
