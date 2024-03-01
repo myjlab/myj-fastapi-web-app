@@ -367,9 +367,30 @@ class TestTaskRouter(AppTestCase):
         updated_task = res.json()
         image_res = self.client.get(updated_task["img_path"])
 
-        self.assertEqual(fake_image, image_res.content)
+        self.assertEqual(image_res.status_code, status.HTTP_200_OK)
         # delete the image
         Path(f".{updated_task['img_path']}").unlink()
+        self.assertEqual(fake_image, image_res.content)
+
+    def test_add_heif_image_to_task(self):
+        self.create_user_and_login()
+
+        fake_heif_image = fake.image(image_format="heif")
+        task_id = self.create_task().json()["id"]
+
+        res = self.client.put(
+            f"/tasks/{task_id}/image",
+            files={"image": ("image.heic", fake_heif_image, "image/heic")},
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        updated_task = res.json()
+        image_res = self.client.get(updated_task["img_path"])
+
+        self.assertEqual(image_res.status_code, status.HTTP_200_OK)
+        # delete the image
+        Path(f".{updated_task['img_path']}").unlink()
+        self.assertEqual("image/jpeg", image_res.headers["content-type"])
 
     def test_add_image_to_task_with_non_existent_task(self):
         self.create_user_and_login()
