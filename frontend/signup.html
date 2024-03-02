@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>新規登録 | TODOアプリ</title>
+  <!-- cssファイルをimport -->
+  <link rel="stylesheet" href="/css/general.css">
+
+  <!-- jsファイルをimport -->
+  <script type="text/javascript" src="/js/general.js"></script>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>新規登録</h1>
+    <div>
+      <div id="megs" style="color: red;">&nbsp;</div>
+      <label for="nickname">ニックネーム:</label>
+      <input type="text" id="nickname" name="nickname" required>
+      <br />
+
+      <label for="email">メールアドレス:</label>
+      <input type="email" id="email" name="email" required>
+      <br />
+
+      <label for="password">パスワード:</label>
+      <input type="password" id="password" name="password" required>
+      <br /><br />
+
+      <button onclick="register()">新規登録</button>
+    </div>
+
+  </div>
+
+</body>
+
+<script>
+  if (checkLogin()) {
+    location.href = "/index.html"
+  }
+
+  const register = () => {
+    // フォームの値を取得
+    // .trim()で前後の空白を削除
+    const nickname = document.getElementById('nickname').value.trim()
+    const email = document.getElementById('email').value.trim()
+    const password = document.getElementById('password').value.trim()
+
+    // メッセージを表示するための要素を取得
+    const megsBox = document.getElementById('megs')
+
+    // 全ての項目が入力されているかチェック
+    if (nickname === '' || email === '' || password === '') {
+      megsBox.innerText = '全ての項目を入力してください'
+      return
+    }
+
+
+    // API用データを作成する
+    const url = `${API_HOST}/user`
+    const data = {
+      email: email,
+      nickname: nickname,
+      password: password
+    }
+
+    // APIにリクエストを送信
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data) // JSON.stringify()でオブジェクトをJSON文字列に変換
+    }).then((res) => {
+      // 次の処理は.then()メソッドの中で行う
+      if (res.ok) {
+        megsBox.innerHTML = '新規登録に成功しました <a href="/login.html">ログインページへ</a>'
+        return
+      }
+
+      // エラー処理
+      if (res.status === 400) {
+        megsBox.innerText = '入力されたメールアドレスは既に登録されています'
+      }
+      else {
+        megsBox.innerText = '新規登録に失敗しました'
+      }
+    })
+  }
+</script>
+
+</html>

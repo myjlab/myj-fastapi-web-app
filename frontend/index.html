@@ -1,14 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <!-- cssファイルをimport -->
+  <link rel="stylesheet" href="/css/general.css">
+
+  <!-- jsファイルをimport -->
+  <script src="/js/general.js"></script>
 </head>
 
 <body>
-  Browsersync is running!
+  <div>
+    <h1 id="welcome"></h1>
+    <button onclick="logout()">ログアウト</button>
+  </div>
+
+  <h2>タスク一覧</h2>
+  <div id="task-list">
+  </div>
+
 </body>
+
+<script>
+  // ログインしていない場合、ログインページに移動
+  if (!checkLogin()) {
+    location.href = "/login.html"
+  }
+
+  // ユーザー情報を取得
+  const me_url = `${API_HOST}/me`
+  fetch(me_url, {
+    method: 'GET',
+    // 認証情報を含める
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  }).then((res) => {
+    // 次の処理は.then()メソッドの中で行う
+    // レスポンスがokなら、データを取得して次の処理を行う
+    if (res.ok) return res.json()
+
+    // エラー処理
+    if (res.status === 401) {
+      handle_login_error()
+    } else {
+      alert('予期せむエラーが発生しました')
+    }
+  }
+  ).then(data => {
+    document.getElementById('welcome').innerText = `ようこそ、${data.nickname}さん`
+  })
+
+
+  const updateTask = (taskId, checkbox) => {
+    console.log(taskId, checkbox.checked)
+    const url = `${API_HOST}/tasks/${taskId}/done`
+    fetch(url, {
+      method: checkbox.checked ? 'PUT' : 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    }).then((res) => {
+      if (!res.ok) alert('予期せむエラーが発生しました')
+    })
+  }
+
+  // タスク一覧を取得
+  const task_url = `${API_HOST}/tasks`
+  fetch(task_url, {
+    method: 'GET',
+    // 認証情報を含める
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  }).then((res) => {
+    // 次の処理は.then()メソッドの中で行う
+    // レスポンスがokなら、データを取得して次の処理を行う
+    if (res.ok) return res.json()
+
+    // エラー処理
+    if (res.status === 401) {
+      handle_login_error()
+    } else {
+      alert('予期せむエラーが発生しました')
+    }
+  }
+  ).then((data) => {
+    const taskList = document.getElementById('task-list')
+    data.forEach(task => {
+      const taskDiv = document.createElement('div')
+      taskDiv.innerHTML = `
+      <input type="checkbox" id="task-${task.id}" ${task.done ? 'checked' : ''} onchange="updateTask(${task.id}, this)">
+      ${task.title} ${task.due_date ? `期限: ${task.due_date}` : ''}
+      `
+      taskList.appendChild(taskDiv)
+    })
+  })
+
+</script>
 
 </html>
