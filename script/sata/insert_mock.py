@@ -15,6 +15,7 @@ def create_user(data=None):
     if data is None:
         data = {
             "email": fake.email(domain="aoyama.jp"),
+            "nickname": fake.name(),
             "password": "1",
         }
     url = host + "/user"
@@ -32,7 +33,12 @@ def login(email, password):
 
 def insert_mock_task():
     user_data = [
-        {"email": f"u{i+1}@aoyama.jp", "password": "1"} for i in range(5)
+        {
+            "email": f"u{i+1}@aoyama.jp",
+            "nickname": fake.name(),
+            "password": "1",
+        }
+        for i in range(5)
     ]
     for data in user_data:
         print(data["email"])
