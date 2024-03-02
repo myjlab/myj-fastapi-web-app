@@ -48,7 +48,7 @@ def login_for_access_token(
         key="Authorization",
         value=access_token,
         httponly=True,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES,
     )
 
     return auth_schemas.Token(access_token=access_token, token_type="bearer")
