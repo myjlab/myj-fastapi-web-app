@@ -19,6 +19,7 @@
 
   <h2>タスク一覧</h2>
   <div id="task-list">
+    <!-- ここにタスクが入る -->
   </div>
 
 </body>
@@ -54,8 +55,9 @@
   })
 
 
-  const updateTask = (taskId, checkbox) => {
-    console.log(taskId, checkbox.checked)
+  const updateTask = (taskId, checkboxId) => {
+    const checkbox = document.getElementById(checkboxId)
+
     const url = `${API_HOST}/tasks/${taskId}/done`
     fetch(url, {
       method: checkbox.checked ? 'PUT' : 'DELETE',
@@ -93,7 +95,7 @@
     data.forEach(task => {
       const taskDiv = document.createElement('div')
       taskDiv.innerHTML = `
-      <input type="checkbox" id="task-${task.id}" ${task.done ? 'checked' : ''} onchange="updateTask(${task.id}, this)">
+      <input type="checkbox" id="task-done-checkbox-${task.id}" ${task.done ? 'checked' : ''} onchange="updateTask(${task.id}, 'task-done-checkbox-${task.id}')">
       ${task.title} ${task.due_date ? `期限: ${task.due_date}` : ''}
       `
       taskList.appendChild(taskDiv)
