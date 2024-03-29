@@ -94,9 +94,13 @@
     const taskList = document.getElementById('task-list')
     data.forEach(task => {
       const taskDiv = document.createElement('div')
+
       taskDiv.innerHTML = `
-      <input type="checkbox" id="task-done-checkbox-${task.id}" ${task.done ? 'checked' : ''} onchange="updateTask(${task.id}, 'task-done-checkbox-${task.id}')">
-      ${task.title} ${task.due_date ? `期限: ${task.due_date}` : ''}
+      <a href="/task-detail.html?id=${task.id}">
+        <input type="checkbox" id="task-done-checkbox-${task.id}" ${task.done ? 'checked' : ''} onchange="updateTask(${task.id}, 'task-done-checkbox-${task.id}')">
+        ${task.title}
+      </a>
+      ${task.due_date ? `期限: ${task.due_date}` : ''}
       `
       taskList.appendChild(taskDiv)
     })
