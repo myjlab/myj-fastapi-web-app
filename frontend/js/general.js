@@ -12,7 +12,7 @@ const logout = () => {
   location.href = '/login.html'
 }
 
-const handle_login_error = () => {
+const handleLoginError = () => {
   alert('ログイン情報が確認できませんでした、ログインページに移動します')
   logout()
 }
