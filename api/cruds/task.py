@@ -38,6 +38,7 @@ def get_task_with_done(
             task_model.Task.title,
             task_model.Task.due_date,
             task_model.Task.user_id,
+            task_model.Task.img_path,
             task_model.Done.id.isnot(None).label("done"),
         )
         .filter(task_model.Task.id == task_id)
