@@ -17,8 +17,10 @@
     <!-- ここにタスクが入る -->
   </div>
   <div id="task-image">
-
   </div>
+  <a id="edit-link">
+    <button>編集</button>
+  </a>
 
 </body>
 
@@ -33,6 +35,7 @@
     alert('タスクIDが指定されていません')
     location.href = '/index.html'
   }
+  document.getElementById('edit-link').href = `/task-update.html?taskId=${taskId}`
   console.log("taskId:", taskId)
 
   const taskDetailUrl = `${API_HOST}/task/${taskId}`
