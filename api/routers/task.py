@@ -11,7 +11,7 @@ from api.models.user import User as UserModel
 router = APIRouter()
 
 
-@router.post("/tasks", response_model=task_schema.TaskCreateResponse)
+@router.post("/task", response_model=task_schema.TaskCreateResponse)
 def create_task(
     task_body: task_schema.TaskCreate,
     db: Session = Depends(get_db),
@@ -28,7 +28,7 @@ def list_tasks(
     return task_crud.get_multiple_tasks_with_done(db, current_user.id)
 
 
-@router.get("/tasks/{task_id}", response_model=task_schema.Task)
+@router.get("/task/{task_id}", response_model=task_schema.Task)
 def get_task(
     task_id: int,
     db: Session = Depends(get_db),
@@ -46,7 +46,7 @@ def get_task(
     return task
 
 
-@router.put("/tasks/{task_id}", response_model=task_schema.TaskCreateResponse)
+@router.put("/task/{task_id}", response_model=task_schema.TaskCreateResponse)
 def update_task(
     task_id: int,
     task_body: task_schema.TaskApiUpdate,
@@ -68,7 +68,7 @@ def update_task(
 
 
 @router.put(
-    "/tasks/{task_id}/image",
+    "/task/{task_id}/image",
     response_model=task_schema.TaskCreateResponse,
 )
 def add_image_to_task(
@@ -93,7 +93,7 @@ def add_image_to_task(
     )
 
 
-@router.delete("/tasks/{task_id}", response_model=None)
+@router.delete("/task/{task_id}", response_model=None)
 def delete_task(
     task_id: int,
     db: Session = Depends(get_db),

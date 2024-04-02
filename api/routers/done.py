@@ -11,7 +11,7 @@ from api.models.user import User as UserModel
 router = APIRouter()
 
 
-@router.put("/tasks/{task_id}/done", response_model=done_schema.DoneResponse)
+@router.put("/task/{task_id}/done", response_model=done_schema.DoneResponse)
 def mark_task_as_done(
     task_id: int,
     db: Session = Depends(get_db),
@@ -30,7 +30,7 @@ def mark_task_as_done(
     return done_crud.create_done(db, task_id)
 
 
-@router.delete("/tasks/{task_id}/done", response_model=None)
+@router.delete("/task/{task_id}/done", response_model=None)
 def unmark_task_as_done(
     task_id: int,
     db: Session = Depends(get_db),
