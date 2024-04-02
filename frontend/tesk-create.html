@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>タスク新規作成 | TODOアプリ</title>
+  <!-- cssファイルをimport -->
+  <link rel="stylesheet" href="/css/general.css">
+
+  <!-- jsファイルをimport -->
+  <script src="/js/general.js"></script>
+</head>
+
+<body>
+
+  <h2>タスク新規作成</h2>
+  <div id="megs" style="color: red;">&nbsp;</div>
+  <div id="task-input">
+    <label for="title">タイトル</label>
+    <input type="text" id="title" name="title" required>
+    <br />
+    <label for="due_date">期限</label>
+    <input type="date" id="due_date" name="due_date">
+    <br />
+    <label for="task-image">画像</label>
+    <input type="file" id="task-image" name="img_path">
+    <br /><br />
+  </div>
+  <button onclick="createTask()">作成</button>
+</body>
+
+<script>
+  // ログインしていない場合、ログインページに移動
+  if (!checkLogin()) {
+    handleLoginError()
+  }
+
+  const createTask = () => {
+    const megsDiv = document.getElementById('megs')
+
+    const title = document.getElementById('title').value
+    if (!title) {
+      megsDiv.innerText = 'タイトルを入力してください'
+      return
+    }
+    const dueDate = document.getElementById('due_date').value
+    const taskImage = document.getElementById('task-image')
+
+    const tackCreateUrl = `${API_HOST}/task`
+    fetch(tackCreateUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title: title,
+        due_date: dueDate,
+      })
+    }).then((res) => {
+      if (res.ok) return res.json()
+
+      if (res.status === 401) {
+        handleLoginError()
+      } else {
+        alert('予期せむエラーが発生しました')
+      }
+    }).then(data => {
+      console.log("data:", data)
+      // 画像がない場合はスキップ
+      if (!taskImage.files) {
+        console.log('画像がありません')
+        alert('タスクを作成しました')
+        location.href = '/index.html'
+        return
+      }
+      // 画像がある場合は、画像をアップロード
+      const addTaskImageUrl = `${API_HOST}/task/${data.id}/image`
+      const formData = new FormData()
+      formData.append('image', taskImage.files[0])
+      fetch(addTaskImageUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: formData
+      }).then((res) => {
+        if (res.ok) {
+          alert('タスクを作成しました')
+          location.href = '/index.html'
+        } else {
+          alert('予期せむエラーが発生しました')
+        }
+      })
+    })
+  }
+
+</script>
+
+</html>
