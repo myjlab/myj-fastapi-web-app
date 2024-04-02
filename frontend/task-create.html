@@ -20,10 +20,10 @@
     <input type="text" id="title" name="title" required>
     <br />
     <label for="due_date">期限</label>
-    <input type="date" id="due_date" name="due_date">
+    <input type="date" id="due-date" name="due_date">
     <br />
-    <label for="task-image">画像</label>
-    <input type="file" id="task-image" name="img_path">
+    <label for="task-image-input">画像</label>
+    <input type="file" id="task-image-input" name="img_path">
     <br /><br />
   </div>
   <button onclick="createTask()">作成</button>
@@ -43,8 +43,8 @@
       megsDiv.innerText = 'タイトルを入力してください'
       return
     }
-    const dueDate = document.getElementById('due_date').value
-    const taskImage = document.getElementById('task-image')
+    const dueDate = document.getElementById('due-date').value
+    const taskImageInput = document.getElementById('task-image-input')
 
     const tackCreateUrl = `${API_HOST}/task`
     fetch(tackCreateUrl, {
@@ -68,7 +68,7 @@
     }).then(data => {
       console.log("data:", data)
       // 画像がない場合はスキップ
-      if (!taskImage.files) {
+      if (taskImageInput.files.length === 0) {
         console.log('画像がありません')
         alert('タスクを作成しました')
         location.href = '/index.html'
