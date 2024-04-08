@@ -13,7 +13,6 @@ from api.db import get_db
 # ! 本当は環境変数などから取得するべき
 SECRET_KEY = "6ae97a28c3884986c02e1160313d30c2a065bbc4b14e4f6400085dd3e8afa6ea"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 cookie_scheme = APIKeyCookie(name="Authorization", auto_error=False)

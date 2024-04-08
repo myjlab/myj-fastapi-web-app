@@ -7,11 +7,9 @@ from sqlalchemy.orm import Session
 import api.cruds.user as user_crud
 import api.extra_modules.auth.schema as auth_schemas
 from api.db import get_db
-from api.extra_modules.auth.core import (
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    create_access_token,
-)
+from api.extra_modules.auth.core import create_access_token
 
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 router = APIRouter()
 
 
