@@ -9,6 +9,7 @@
 
   <!-- jsファイルをimport -->
   <script type="text/javascript" src="/js/general.js"></script>
+  <script type="text/javascript" src="/js/api.js"></script>
 </head>
 
 <body>
@@ -53,30 +54,14 @@
       return
     }
 
-    const url = `${API_HOST}/token`
     // APIにリクエストを送信
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      // loginの場合のみ、bodyは特別
-      body: `username=${email}&password=${password}`
-    }).then((res) => {
-      // 次の処理は.then()メソッドの中で行う
-      // レスポンスがokなら、データを取得して次の処理を行う
-      if (res.ok) return res.json()
-
-      // エラー処理
-      if (res.status === 401) {
-        megsBox.innerText = 'メールアドレスまたはパスワードが間違っています'
-      } else {
-        megsBox.innerText = 'エラーが発生しました'
-      }
-    }).then((data) => {
-      localStorage.setItem('token', data.access_token)
-      location.href = '/index.html'
-    })
+    loginApi(email, password)
+      .then((data) => {
+        location.href = '/index.html'
+      })
+      .catch((error) => {
+        megsBox.innerText = error.message
+      })
   }
 </script>
 

@@ -8,7 +8,8 @@
   <link rel="stylesheet" href="/css/general.css">
 
   <!-- jsファイルをimport -->
-  <script src="/js/general.js"></script>
+  <script type="text/javascript" src="/js/general.js"></script>
+  <script type="text/javascript" src="/js/api.js"></script>
 </head>
 
 <body>
@@ -46,53 +47,23 @@
     const dueDate = document.getElementById('due-date').value
     const taskImageInput = document.getElementById('task-image-input')
 
-    const tackCreateUrl = `${API_HOST}/task`
-    fetch(tackCreateUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        title: title,
-        due_date: dueDate,
-      })
-    }).then((res) => {
-      if (res.ok) return res.json()
+    const taskData = {
+      title: title,
+      due_date: dueDate ? dueDate : null
+    }
+    console.log("taskData:", taskData)
+    createTaskApi(taskData)
+      .then(data => {
+        console.log("data:", data)
 
-      if (res.status === 401) {
-        handleLoginError()
-      } else {
-        alert('予期せむエラーが発生しました')
-      }
-    }).then(data => {
-      console.log("data:", data)
-      // 画像がない場合はスキップ
-      if (taskImageInput.files.length === 0) {
+        // 画像がある場合は、画像をアップロード
+        if (taskImageInput.files.length !== 0) {
+          updateTaskImageApi(data.id, taskImageInput.files[0])
+        }
         console.log('画像がありません')
         alert('タスクを作成しました')
         location.href = '/index.html'
-        return
-      }
-      // 画像がある場合は、画像をアップロード
-      const addTaskImageUrl = `${API_HOST}/task/${data.id}/image`
-      const formData = new FormData()
-      formData.append('image', taskImage.files[0])
-      fetch(addTaskImageUrl, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: formData
-      }).then((res) => {
-        if (res.ok) {
-          alert('タスクを作成しました')
-          location.href = '/index.html'
-        } else {
-          alert('予期せむエラーが発生しました')
-        }
       })
-    })
   }
 
 </script>

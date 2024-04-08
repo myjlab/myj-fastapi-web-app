@@ -8,7 +8,8 @@
   <link rel="stylesheet" href="/css/general.css">
 
   <!-- jsファイルをimport -->
-  <script src="/js/general.js"></script>
+  <script type="text/javascript" src="/js/general.js"></script>
+  <script type="text/javascript" src="/js/api.js"></script>
 </head>
 
 <body>
@@ -39,33 +40,24 @@
   console.log("taskId:", taskId)
 
   const taskDetailUrl = `${API_HOST}/task/${taskId}`
-  fetch(taskDetailUrl, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  }).then((res) => {
-    if (res.ok) return res.json()
-
-    if (res.status === 401 || res.status === 403) {
-      handleLoginError()
-    } else {
-      alert('予期せむエラーが発生しました')
-    }
-  }).then(data => {
-    console.log("data:", data)
-    const taskDetail = document.getElementById('task-detail')
-    taskDetail.innerHTML = `
+  getTaskDetailApi(taskId)
+    .then(data => {
+      console.log("data:", data)
+      const taskDetail = document.getElementById('task-detail')
+      taskDetail.innerHTML = `
       <h3>タイトル: ${data.title}</h3>
-      <p>期限: ${data.due_date}</p>
+      <p>期限: ${data.due_date ? data.due_date : 'なし'}</p>
     `
-    if (data.img_path) { // 画像がある場合
-      const taskImage = document.getElementById('task-image')
-      taskImage.innerHTML = `
+      if (data.img_path) { // 画像がある場合
+        const taskImage = document.getElementById('task-image')
+        taskImage.innerHTML = `
         <img src="${API_HOST}${data.img_path}" alt="タスク画像">
       `
-    }
-  })
+      }
+    })
+    .catch(error => {
+      location.href = '/index.html'
+    })
 </script>
 
 </html>

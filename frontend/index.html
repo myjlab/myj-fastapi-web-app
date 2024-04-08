@@ -8,7 +8,8 @@
   <link rel="stylesheet" href="/css/general.css">
 
   <!-- jsファイルをimport -->
-  <script src="/js/general.js"></script>
+  <script type="text/javascript" src="/js/general.js"></script>
+  <script type="text/javascript" src="/js/api.js"></script>
 </head>
 
 <body>
@@ -34,81 +35,43 @@
     handleLoginError()
   }
 
-  // ユーザー情報を取得
-  const meUrl = `${API_HOST}/me`
-  fetch(meUrl, {
-    method: 'GET',
-    // 認証情報を含める
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  }).then((res) => {
-    // 次の処理は.then()メソッドの中で行う
-    // レスポンスがokなら、データを取得して次の処理を行う
-    if (res.ok) return res.json()
 
-    // エラー処理
-    if (res.status === 401) {
-      handleLoginError()
-    } else {
-      alert('予期せむエラーが発生しました')
-    }
-  }
-  ).then(data => {
-    document.getElementById('welcome').innerText = `ようこそ、${data.nickname}さん`
+  // ユーザー情報を取得
+  getMeApi().then(data => {
+    console.log("data:", data)
+    const welcomeH1 = document.getElementById('welcome')
+    welcomeH1.innerText = `ようこそ、${data.nickname}さん`
   })
 
 
+  // タスクのチェックボックスがクリックされたときの処理
   const updateTaskDoneStatus = (taskId, checkboxId) => {
     const checkbox = document.getElementById(checkboxId)
 
-    const url = `${API_HOST}/tasks/${taskId}/done`
-    fetch(url, {
-      method: checkbox.checked ? 'PUT' : 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    }).then((res) => {
-      if (!res.ok) alert('予期せむエラーが発生しました')
-    })
+    if (checkbox.checked) {
+      doneTaskApi(taskId)
+    } else {
+      undoneTaskApi(taskId)
+    }
   }
 
   // タスク一覧を取得
-  const taskListUrl = `${API_HOST}/tasks`
-  fetch(taskListUrl, {
-    method: 'GET',
-    // 認証情報を含める
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  }).then((res) => {
-    // 次の処理は.then()メソッドの中で行う
-    // レスポンスがokなら、データを取得して次の処理を行う
-    if (res.ok) return res.json()
-
-    // エラー処理
-    if (res.status === 401) {
-      handleLoginError()
-    } else {
-      alert('予期せむエラーが発生しました')
-    }
-  }
-  ).then((data) => {
-    const taskList = document.getElementById('task-list')
-    data.forEach(task => {
-      const taskDiv = document.createElement('div')
-
-      taskDiv.innerHTML = `
+  getAllTasksApi()
+    .then((data) => {
+      const taskList = document.getElementById('task-list')
+      data.forEach(task => {
+        const taskDiv = document.createElement('div')
+        const inputId = `task-done-checkbox-${task.id}`
+        taskDiv.innerHTML = `
       <a href="/task-detail.html?taskId=${task.id}">
-        <input type="checkbox" id="task-done-checkbox-${task.id}" ${task.done ? 'checked' : ''} onchange="updateTaskDoneStatus(${task.id}, 'task-done-checkbox-${task.id}')">
+        <input type="checkbox" id="${inputId}" ${task.done ? 'checked' : ''} onchange="updateTaskDoneStatus(${task.id}, '${inputId}')">
         ${task.title}
       </a>
       ${task.due_date ? `期限: ${task.due_date}` : ''}
       `
-      taskList.appendChild(taskDiv)
+        taskList.appendChild(taskDiv)
+      })
     })
-  })
 
 </script>
 
