@@ -51,6 +51,7 @@ const loginApi = (email, password) => {
   const url = `${API_HOST}/token`
   return fetch(url, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
@@ -126,7 +127,6 @@ const doneTaskApi = (taskId) => {
   return fetch(url, {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
   }).then((res) => {
@@ -149,7 +149,6 @@ const undoneTaskApi = (taskId) => {
   return fetch(url, {
     method: 'DELETE',
     headers: {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
   }).then((res) => {
