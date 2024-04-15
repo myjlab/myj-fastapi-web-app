@@ -1,7 +1,35 @@
-# myj-fastapi-web-app
-A demo web app with FastAPI, vanilla JS
+# Docker, FastAPI, MySQLを用いたTODOアプリのサンプル
+## 前提条件
+(WIP) dockerインストールのテキストを書く
+
+## 起動方法
+(WIP)　初回のみ
+(WIP)　毎回必要
+(WIP)　アクセス方法
+
+## 開発の進め方
+### api
+(WIP) ディレクトリ構成の説明を含む
+
+### frontend
+(WIP) ディレクトリ構成の説明を含む
 
 
+# コピペ用コマンド
+(WIP) 
+
+# 備考
+(WIP)
+TASA用prj説明
+
+
+# FQA
+(WIP) Windows one driveの説明
+(WIP) 422 
+(WIP) body: JSON.stringify(data),の時はheaders: {'Content-Type': 'application/json',}, 必須
+
+
+# 以下、古いdocバックアップ
 # For development
 ```bash
 docker-compose up
