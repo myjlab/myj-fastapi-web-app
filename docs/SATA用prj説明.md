@@ -121,6 +121,12 @@ erDiagram
 
 ### API構造
 (WIP)
+#### taskの画像について
+- Create時は、`Create task` -> `task_id` -> `Upload image & Update task`の流れで行う
+- `PUT /task/{task_id}`
+  - Image以外の情報を更新する
+- `PUT /task/{task_id}/image`
+  - Imageのみを更新する
 
 ## frontend
 (WIP)
