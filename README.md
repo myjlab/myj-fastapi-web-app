@@ -4,7 +4,9 @@
 
 ## 起動方法
 (WIP)　初回のみ
+
 (WIP)　毎回必要
+
 (WIP)　アクセス方法
 
 ## 開発の進め方
@@ -25,7 +27,9 @@ TASA用prj説明
 
 # FQA
 (WIP) Windows one driveの説明
+
 (WIP) 422 
+
 (WIP) body: JSON.stringify(data),の時はheaders: {'Content-Type': 'application/json',}, 必須
 
 
