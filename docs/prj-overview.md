@@ -130,7 +130,7 @@ erDiagram
 ```
 
 ### DBのテーブル構造の変更について
-[README.mdを参照](../README.md#DBのテーブル構造の変更について)
+[README.md](../README.md#DBのテーブル構造の変更について)を参照
 
 ### API構造
 #### 認証、ユーザー関連
@@ -157,15 +157,12 @@ erDiagram
 - `POST /task`
   - タスク新規
   - Err Response
-    - 401 (Unauthorized)
-    - 422 (Unprocessable Entity)
+    - 401 (Unauthorized), 422 (Unprocessable Entity)
 
 - `GET /task／{task_id}`
   - タスク詳細取得
   - Err Response
-    - 401 (Unauthorized)
-    - 403 (Forbidden)
-    - 404 (Not Found)
+    - 401 (Unauthorized), 403 (Forbidden), 404 (Not Found)
 
 - `GET /tasks`
   - タスク一覧取得
@@ -175,38 +172,28 @@ erDiagram
 - `PUT /task/{task_id}`
   - タスク情報更新
   - Err Response
-    - 401 (Unauthorized)
-    - 403 (Forbidden)
-    - 404 (Not Found)
+    - 401 (Unauthorized), 403 (Forbidden), 404 (Not Found)
 
 - `PUT /task/{task_id}/image`
   - タスク画像更新
   - Err Response
-    - 401 (Unauthorized)
-    - 403 (Forbidden)
-    - 404 (Not Found)
+    - 401 (Unauthorized), 403 (Forbidden), 404 (Not Found)
 
 - `DELETE /task/{task_id}`
   - タスク削除
   - Err Response
-    - 401 (Unauthorized)
-    - 403 (Forbidden)
-    - 404 (Not Found)
+    - 401 (Unauthorized), 403 (Forbidden), 404 (Not Found)
 
 - `POST /task/{task_id}/done`
   - タスク完了
   - Err Response
     - 400 (Bad Request) Done already exists
-    - 401 (Unauthorized)
-    - 403 (Forbidden)
-    - 404 (Not Found)
+    - 401 (Unauthorized), 403 (Forbidden), 404 (Not Found)
 
 - `DELETE /task/{task_id}/done`
   - タスク未完了
   - Err Response
-    - 401 (Unauthorized)
-    - 403 (Forbidden)
-    - 404 (Not Found)
+    - 401 (Unauthorized), 403 (Forbidden), 404 (Not Found)
 
 #### taskの画像について
 - Create時は、`Create task` -> `task_id` -> `Update task image`の流れで行う
