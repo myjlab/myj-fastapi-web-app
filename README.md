@@ -3,11 +3,32 @@
 (WIP) dockerインストールのテキストを書く
 
 ## 起動方法
-(WIP)　初回のみ
+1. 以下のコマンドを実行してprjのディレクトリに移動する
+```bash 
+cd
+cd Desktop
+cd myj-fastapi-web-app
+```
 
-(WIP)　毎回必要
+2. 以下のコマンドを実行してprjを起動する
+```bash
+docker-compose up
+```
+※ ⚠️ ※ **注意** 初回はかなり時間がかかるので，下記のログが出力されるまではしばらく待機
+<img width="800" alt="cmd.png" src="docs/images/docker-first-up-output.png">
 
-(WIP)　アクセス方法
+3. **(初回のみ)** 以下のコマンドを実行してDBのテーブルを作成する
+
+- macの場合
+```bash
+sh script/migrate_db.sh
+```
+   - windowsの場合
+```bash
+script\migrate_db.bat
+```
+
+### アクセス方法
 すると、以下のURLでアクセスできます。
 - API: http://localhost:8000/docs
 - フロントエンド: http://localhost:3000
@@ -26,7 +47,7 @@ docker-compose up コマンドを実行したウィンドウで `Ctrl + c`
   - macの場合
   - `sh script/migrate_db.sh`
   - windowsの場合
-  - (WIP)
+  - `script\migrate_db.bat`
 - このコマンドは、DBのすべてのデータを削除します。今DBに存在するデータを`api/db_back_up/`にバックアップされます。
 
 ### frontend
@@ -54,7 +75,7 @@ windowsの場合: `script\add-package.bat <パッケージ名>`
 
 ## FQA
 ## Q: Windowsにおいて、`cd Desktop`でエラーが出る
-A: Windowsの場合、OneDriveの関係でDesktopが存在しない場合があります。その場合、`cd OneDrive`で移動してください。(WIP) 
+A: Windowsの場合、OneDriveの関係でDesktopが存在しない場合があります。その場合、`cd OneDrive`で移動して`dir`でディレクトリの一覧を確認しながら、`Desktop`か`デスクトップ`に移動してください。
 
 ## Q: フロントエンドでAPIを呼び出すと422エラーが出る
 422は、リクエストの形式が正しくない場合に出るエラーです。以下の点を確認してください。
@@ -68,28 +89,3 @@ A: Windowsの場合、OneDriveの関係でDesktopが存在しない場合があ�
 prj全体の構造は[`docs/prj-overview.md`](docs/prj-overview.md)を参照してください。
 
 TASAとこのでもアプリ自体を開発する人は必ず読んでください。
-
-
-# 以下、古いdocバックアップ
-# For development
-```bash
-docker-compose up
-sh script/migrate_db.sh
-```
-で動くはず
-
-開発用スクりプトの説明
-```bash
-❯ tree script
-script
-├── add-package.sh  # sh script/add-package.sh <package_name>、コンテナ
-├── migrate_db.sh　# sh script/migrate_db.sh、DBをマイグレーション
-├── rebuild-api.sh　# sh script/rebuild-api.sh、APIコンテナを再ビルド
-├── rebuild-frontend.sh　# sh script/rebuild-frontend.sh、フロントエンドコンテナを再ビルド
-└── sata
-    └── insert_mock.py　# python script/sata/insert_mock.py、モックデータをDBに挿入
-    (ダメだったら、docker compose exec api poetry run python script/sata/insert_mock.py)
-
-2 directories, 5 files
-```
-
