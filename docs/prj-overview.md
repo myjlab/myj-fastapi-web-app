@@ -249,9 +249,16 @@ frontend/
     - .thenでDOM操作
 
 # スクリプト
-(WIP)
+学生用のスクリプトについては[README.md](../README.md#よく使うコマンドについて)を参照
 
-docker compose exec api poetry run python script/sata/insert_mock.py
+### `sh script/rebuild-api.sh`
+APIコンテナを再ビルドするスクリプト
+
+### `sh script/rebuild-frontend.sh`
+フロントコンテナを再ビルドするスクリプト
+
+### `docker compose exec api poetry run python script/sata/insert_mock.py`
+開発用にモックデータをAPI経由でDBに挿入するスクリプト
 
 # テストについて
 (WIP)
