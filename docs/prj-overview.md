@@ -1,4 +1,14 @@
+# 開発ツールについて
+Package manager: **Poetry** (APIコンテナ内部も)
+
+Linter: **flake8**
+
+Formatter: **black**
+
+
 # インフラ構成
+
+フロントコンテナはディレクトリを監視し、自動にブラウザをリロードできる[browser-sync](https://browsersync.io/)を使用している
 
 ```mermaid
 graph LR
@@ -119,20 +129,142 @@ erDiagram
 
 ```
 
+### DBのテーブル構造の変更について
+[README.mdを参照](../README.md#DBのテーブル構造の変更について)
+
 ### API構造
-(WIP)
+#### 認証、ユーザー関連
+詳しくは http://localhost:8000/docs を参照
+
+- `POST /token`
+  - ユーザー認証
+  - Request
+    - `Content-Type: application/x-www-form-urlencoded`
+  - Err Response
+    - 401 (Unauthorized)
+
+- `POST /user`
+  - ユーザー登録
+  - Err Response
+    - 400 (Bad Request) Email already registered
+
+- `GET /me`
+  - ログインユーザー情報取得
+  - Err Response
+    - 401 (Unauthorized)
+
+#### タスク関連
+- `POST /task`
+  - タスク新規
+  - Err Response
+    - 401 (Unauthorized)
+    - 422 (Unprocessable Entity)
+
+- `GET /task／{task_id}`
+  - タスク詳細取得
+  - Err Response
+    - 401 (Unauthorized)
+    - 403 (Forbidden)
+    - 404 (Not Found)
+
+- `GET /tasks`
+  - タスク一覧取得
+  - Err Response
+    - 401 (Unauthorized)
+
+- `PUT /task/{task_id}`
+  - タスク情報更新
+  - Err Response
+    - 401 (Unauthorized)
+    - 403 (Forbidden)
+    - 404 (Not Found)
+
+- `PUT /task/{task_id}/image`
+  - タスク画像更新
+  - Err Response
+    - 401 (Unauthorized)
+    - 403 (Forbidden)
+    - 404 (Not Found)
+
+- `DELETE /task/{task_id}`
+  - タスク削除
+  - Err Response
+    - 401 (Unauthorized)
+    - 403 (Forbidden)
+    - 404 (Not Found)
+
+- `POST /task/{task_id}/done`
+  - タスク完了
+  - Err Response
+    - 400 (Bad Request) Done already exists
+    - 401 (Unauthorized)
+    - 403 (Forbidden)
+    - 404 (Not Found)
+
+- `DELETE /task/{task_id}/done`
+  - タスク未完了
+  - Err Response
+    - 401 (Unauthorized)
+    - 403 (Forbidden)
+    - 404 (Not Found)
+
 #### taskの画像について
-- Create時は、`Create task` -> `task_id` -> `Upload image & Update task`の流れで行う
+- Create時は、`Create task` -> `task_id` -> `Update task image`の流れで行う
 - `PUT /task/{task_id}`
   - Image以外の情報を更新する
 - `PUT /task/{task_id}/image`
   - Imageのみを更新する
 
 ## frontend
-(WIP)
+### ファイル構造について
+```bash
+❯ tree .
+frontend/
+├── css
+│   └── general.css
+├── index.html
+├── js
+│   ├── api.js
+│   └── general.js
+├── login.html
+├── signup.html
+├── task-create.html
+├── task-detail.html
+└── task-update.html
+
+3 directories, 9 files
+```
+- `./frontend/*` を全てPORT `3000` でホスティング
+
+- 基本的に**1 ページ、1 HTMLファイル**で構成
+  - パラメータはクエリーパラメータで受け取る
+    - e.g. `http://localhost:3000/task-detail.html?taskId=1`
+
+- API呼ぶ出し操作は`api.js`に記述
+  - `return fetch(...).then(...)...` の感じ
+  - `async/await`は使わない
+
+### 開発について
+- takenはlocalStorageに保存
+  - `localStorage.setItem('token', data.access_token)`
+  - ログイン時に取得、ログアウト時に削除
+
+- htmlファイルは
+  - `header`
+  - `body`
+    - レイアウトのみ記述
+  - `script`
+    - 処理の流れの一例として ⬇️
+    - checkLogin
+    - クエリーパラメータの取得
+    - `onCLick`などのイベント関数を用意
+    - API呼び出し
+    - .thenでDOM操作
 
 # スクリプト
 (WIP)
+
+docker compose exec api poetry run python script/sata/insert_mock.py
 
 # テストについて
 (WIP)
