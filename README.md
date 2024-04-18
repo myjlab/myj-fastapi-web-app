@@ -8,6 +8,13 @@
 (WIP)　毎回必要
 
 (WIP)　アクセス方法
+すると、以下のURLでアクセスできます。
+- API: http://localhost:8000/docs
+- フロントエンド: http://localhost:3000
+
+### 停止
+
+docker-compose up コマンドを実行したウィンドウで `Ctrl + c`
 
 ## 開発の進め方
 ### api
@@ -20,29 +27,47 @@
   - `sh script/migrate_db.sh`
   - windowsの場合
   - (WIP)
-- このコマンドは、DBのすべてのデータを削除します。今DBに存在するデータを`api/db_back_up`にバックアップされます。
+- このコマンドは、DBのすべてのデータを削除します。今DBに存在するデータを`api/db_back_up/`にバックアップされます。
 
 ### frontend
 (WIP) ディレクトリ構成の説明を含む
 
 
-# コマンド(コピペ用)
-(WIP) 
-- プロジェクトの起動
-- テーブル構造の変更をDBに反映
-- 新しいパッケージの追加
+## よく使うコマンドについて
+コピペって使ってください
 
-# 備考
-(WIP)
-TASA用prj説明
+### プロジェクトの起動
+1. `cd`
+2. `cd Desktop`
+3. `cd myj-fastapi-web-app`
+4. `docker-compose up`
 
+### テーブル構造の変更をDBに反映
+macの場合: `sh script/migrate_db.sh`
 
-# FQA
-(WIP) Windows one driveの説明
+windowsの場合: `script\migrate_db.bat`
 
-(WIP) 422 
+### 新しいパッケージの追加
+macの場合: `sh script/add-package.sh <パッケージ名>`
 
-(WIP) body: JSON.stringify(data),の時はheaders: {'Content-Type': 'application/json',}, 必須
+windowsの場合: `script\add-package.bat <パッケージ名>`
+
+## FQA
+## Q: Windowsにおいて、`cd Desktop`でエラーが出る
+A: Windowsの場合、OneDriveの関係でDesktopが存在しない場合があります。その場合、`cd OneDrive`で移動してください。(WIP) 
+
+## Q: フロントエンドでAPIを呼び出すと422エラーが出る
+422は、リクエストの形式が正しくない場合に出るエラーです。以下の点を確認してください。
+
+- API側で定義とた通りのリクエストを送っているか
+  - `http://localhost:8000/docs` でAPIの仕様を確認できます。
+
+- `fetch`の第2引数に`{ body: JSON.stringify(data) }`を指定している場合、`headers: { 'Content-Type': 'application/json' }` の指定が必要です。
+
+## 備考
+prj全体の構造は[`docs/prj-overview.md`](docs/prj-overview.md)を参照してください。
+
+TASAとこのでもアプリ自体を開発する人は必ず読んでください。
 
 
 # 以下、古いdocバックアップ
