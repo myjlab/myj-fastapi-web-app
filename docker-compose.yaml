@@ -21,7 +21,7 @@ services:
     ports:
       - 8000:8000 # ホストマシンのポート8000を、docker内のポート8000に接続する
     environment:
-      WATCHFILES_FORCE_POLLING: true # 環境によってホットリロードのために必要
+      WATCHFILES_FORCE_POLLING: 'true' # 環境によってホットリロードのために必要
       TZ: Asia/Tokyo # タイムゾーンを日本時間に設定
   db:
     image: mysql:8.0

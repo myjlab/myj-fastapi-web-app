@@ -18,12 +18,15 @@ def mark_task_as_done(
     current_user: UserModel = Depends(get_current_user),
 ):
     task = task_crud.get_task(db, task_id=task_id)
+    # 存在したい場合
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
+    # 違うユーザーのタスクを変更しようとした場合
     if task.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Forbidden")
 
     done = done_crud.get_done(db, task_id=task_id)
+    # すでにdoneがされている場合
     if done is not None:
         raise HTTPException(status_code=400, detail="Done already exists")
 
@@ -38,10 +41,12 @@ def unmark_task_as_done(
 ):
 
     done = done_crud.get_done(db, task_id=task_id)
+    # doneリソースが存在しない場合
     if done is None:
         raise HTTPException(status_code=404, detail="Not found")
 
     task = task_crud.get_task(db, task_id=task_id)
+    # 違うユーザーのタスクを変更しようとした場合
     if task.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Forbidden")
 
