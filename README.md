@@ -104,6 +104,13 @@ Windowsの場合、OneDriveの関係でDesktopが存在しない場合があり�
 
 - `fetch`の第2引数に`{ body: JSON.stringify(data) }`を指定している場合、`headers: { 'Content-Type': 'application/json' }` の指定が必要です。
 
+## Q: APIの呼び出しは`pymysql.err.ProgrammingError: (1146, "xxxx doesn't exist")`というエラーが出る
+`models/`に定義した内容がDBに反映されていない可能性があります。マイグレーションスクリプトを実行してみてください。
+
+macの場合: `sh script/migrate_db.sh`
+
+windowsの場合: `script\migrate_db.bat`
+
 ## 備考
 prj全体の構造は[`docs/prj-overview.md`](docs/prj-overview.md)を参照してください。
 
