@@ -32,10 +32,10 @@
 - 「⌘ + スペース」で「terminal」と検索して起動
 など
 
-### 2. コマンドで確認( *$は入力しなくて良い* )
+### 2. コマンドで確認
 ```bash
-$ docker --version
-$ docker-compose --version
+docker --version
+docker-compose --version
 ```
 
 出力例
