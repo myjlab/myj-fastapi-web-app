@@ -1,6 +1,11 @@
 # Docker, FastAPI, MySQLを用いたTODOアプリのサンプル
 ## 前提条件
-(WIP) dockerインストールのテキストを書く
+Dockerのインストールを完了させておくこと
+
+- Windows10の場合(WIP)
+- Windows11の場合(WIP)
+- [Macの場合](docs/install-docker-mac.md)
+
 
 ## 起動方法
 1. 以下のコマンドを実行してprjのディレクトリに移動します。
