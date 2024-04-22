@@ -20,9 +20,9 @@
   - ドラッグ&ドロップで移動する．完了したらウィンドウは閉じて良い
   <img width="600" alt="Docker mac drag and drop" src="images/drag-and-drop.png">
 4. 起動
-  - Dockerを起動
-    - アプリケーション → Dockerを起動
-    - 「⌘ + スペース」で「Docker」と検索して起動
+- Dockerを起動
+  - アプリケーション → Dockerを起動
+  - 「⌘ + スペース」で「Docker」と検索して起動
 
 ## インストールの確認
 
