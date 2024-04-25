@@ -36,10 +36,12 @@ def get_task(
 ):
     task = task_crud.get_task_with_done(db, task_id=task_id)
 
+    # タスクが存在しない場合
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
 
     task = task_schema.Task.from_orm(task)
+    # 他のユーザーのタスクを取得しようとした場合
     if task.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Forbidden")
 
@@ -55,8 +57,10 @@ def update_task(
 ):
     task = task_crud.get_task(db, task_id=task_id)
 
+    # タスクが存在しない場合
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
+    # 他のユーザーのタスクを変更しようとした場合
     if task.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Forbidden")
 
@@ -79,8 +83,10 @@ def add_image_to_task(
 ):
     task = task_crud.get_task(db, task_id=task_id)
 
+    # タスクが存在しない場合
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
+    #  他のユーザーのタスクを変更しようとした場合
     if task.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Forbidden")
 
@@ -101,8 +107,10 @@ def delete_task(
 ):
     task = task_crud.get_task(db, task_id=task_id)
 
+    # タスクが存在しない場合
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
+    # 他のユーザーのタスクを削除しようとした場合
     if task.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Forbidden")
 
