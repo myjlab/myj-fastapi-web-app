@@ -54,7 +54,7 @@ $ docker-compose --version
 
 ## Windows Updateが必要な場合
 
-1. [Windowsダウンロードのページ](https://www.microsoft.com/ja-jp/software-download/windows10IS://www.microsoft.com/ja-jp/software-download/windows10)に進み，下記のボタンからダウンロードする
+1. [Windowsダウンロードのページ](https://www.microsoft.com/ja-jp/software-download/windows10%E3%80%80)に進み，下記のボタンからダウンロードする
   <img width="600" alt="install failed" src="images/windows_update_page.png">
 
 2. [元の手順](#Dockerのダウンロード)に戻る
