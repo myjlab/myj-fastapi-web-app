@@ -53,7 +53,7 @@ def insert_mock_task():
             continue
         login_res = login(user["email"], user["password"])
 
-        url = host + "/tasks"
+        url = host + "/task"
         res_list = []
         for _ in range(num_of_tasks):
             payload = {
