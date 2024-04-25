@@ -2,7 +2,7 @@
 ## 前提条件
 Dockerのインストールを完了させておくこと
 
-- Windows10の場合(WIP)
+- [Windows10の場合](docs/install-docker-windows10.md)
 - Windows11の場合(WIP)
 - [Macの場合](docs/install-docker-mac.md)
 
