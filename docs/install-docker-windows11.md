@@ -40,11 +40,11 @@
 
 など
 
-### 2. コマンドで確認( *$は入力しなくて良い* )
+### 2. コマンドで確認
 
 ```bash
-$ docker --version
-$ docker-compose --version
+docker --version
+docker-compose --version
 ```
 
 出力例
@@ -60,8 +60,10 @@ $ docker-compose --version
 3. zipファイルを展開する
 
 ---
-ここまでできたら[READMEの起動方法へ](../README.md)
+ここまでできたら[READMEの起動方法へ](../README.md#起動方法)
 --
+
+<br/><br/><br/><br/><br/><br/>
 
 <!-- ## Windows Updateが必要な場合
 

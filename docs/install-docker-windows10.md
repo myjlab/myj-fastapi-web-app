@@ -52,6 +52,12 @@ docker-compose --version
 
 <img width="600" alt="cmd.png" src="images/version.png">
 
+---
+ここまでできたら[READMEの起動方法へ](../README.md#起動方法)
+--
+
+<br/><br/><br/><br/><br/><br/>
+
 ## Windows Updateが必要な場合
 
 1. [Windowsダウンロードのページ](https://www.microsoft.com/ja-jp/software-download/windows10%E3%80%80)に進み，下記のボタンからダウンロードする
@@ -77,7 +83,3 @@ docker-compose --version
   <img width="600" alt="" src="images/linux_update_download_page.png">
 
 6. 再起動が完了したら[元の手順](#Dockerのダウンロード)に戻る
-
----
-ここまでできたら[READMEの起動方法へ](../README.md#起動方法)
---
