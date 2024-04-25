@@ -3,7 +3,7 @@
 Dockerのインストールを完了させておくこと
 
 - [Windows10の場合](docs/install-docker-windows10.md)
-- Windows11の場合(WIP)
+- [Windows11の場合](docs/install-docker-windows11.md)
 - [Macの場合](docs/install-docker-mac.md)
 
 
