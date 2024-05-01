@@ -12,7 +12,7 @@ Dockerのインストールを完了させておくこと
 ```bash 
 cd
 cd Desktop
-cd myj-fastapi-web-app
+cd myj-fastapi-web-app-main
 ```
 
 2. 以下のコマンドを実行してprjを起動します。
@@ -81,7 +81,7 @@ docker-compose up コマンドを実行したウィンドウで `Ctrl + c`。
 ### プロジェクトの起動
 1. `cd`
 2. `cd Desktop`
-3. `cd myj-fastapi-web-app`
+3. `cd myj-fastapi-web-app-main`
 4. `docker-compose up`
 
 ### テーブル構造の変更をDBに反映
