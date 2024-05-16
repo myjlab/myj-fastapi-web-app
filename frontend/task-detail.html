@@ -40,7 +40,6 @@
   document.getElementById('edit-link').href = `/task-update.html?taskId=${taskId}`
   console.log("taskId:", taskId)
 
-  const taskDetailUrl = `${API_HOST}/task/${taskId}`
   getTaskDetailApi(taskId)
     .then(data => {
       console.log("data:", data)
