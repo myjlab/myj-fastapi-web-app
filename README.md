@@ -116,6 +116,46 @@ macの場合: `sh script/migrate_db.sh`
 
 windowsの場合: `script\migrate_db.bat`
 
+## Q: API呼び出しが500 Internal Server Errorで、エラーログが `pydantic.error_wrappers.ValidationError: xxx validation error for xxxxxx` と出る
+![20240606124924](https://raw.githubusercontent.com/KuroiCc/kuroi-image-host/main/images/20240606124924.png)
+
+`response_model`で指定しているスキーマを正く作ることができませんでした、このエラーメッセージの場合は、`title`が欠けていると書いています。
+
+FastAPIはDBの結果のラベルを探して、スキーマで定義した変数名と一致するラベルの値でスキーマを作ります。そのため、DBの結果のラベルとスキーマの変数名を一致させる必要があります。
+
+以下のやり方で、DBの結果のラベルを確認することができます。違ったラベルがある場合はスキーマの変数名を変更するか、`.label("xxxx")`でラベルを変更してください。
+
+```python
+# api/cruds/task.py の get_multiple_tasks_with_done 関数を例に
+def get_multiple_tasks_with_done(
+    db: Session,
+    user_id: int,
+) -> list[Row]:
+    result: Result = db.execute(
+        select(
+            task_model.Task.id,
+            task_model.Task.title,
+            task_model.Task.due_date,
+            task_model.Task.user_id,
+            task_model.Done.id.isnot(None).label("done"),
+        )
+        .filter(task_model.Task.user_id == user_id)
+        .outerjoin(task_model.Done)
+    )
+
+    all_result = result.all()
+    print("ラベルがつきの結果をdictの形でprintする")
+    for row in all_result:
+        print(row._asdict())
+
+    return all_result
+```
+
+## Q: なんかDBにいる正いデータをAPIから返してくれない。
+
+[前のQ](#q-apiの呼び出しはpymysqlerrprogrammingerror-1146-xxxx-doesnt-existというエラーが出る)と同じ状況かもしれないので、とりあえずラベルをチェックしてみてください。
+
+
 ## 備考
 prj全体の構造は[`docs/prj-overview.md`](docs/prj-overview.md)を参照してください。
 
