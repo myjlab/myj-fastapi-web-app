@@ -95,28 +95,30 @@ macの場合: `sh script/add-package.sh <パッケージ名>`
 windowsの場合: `script\add-package.bat <パッケージ名>`
 
 ## FQA
-## Q: Windowsにおいて、`cd Desktop`でエラーが出る
+## Q1: Windowsにおいて、`cd Desktop`でエラーが出る
 
 Windowsの場合、OneDriveの関係でDesktopが存在しない場合があります。
 
 その場合、`cd OneDrive`で移動して`dir`でディレクトリの一覧を確認しながら、`Desktop`か`デスクトップ`に移動してください。
 
-## Q: フロントエンドでAPIを呼び出すと422エラーが出る
+## Q2: フロントエンドでAPIを呼び出すと422エラーが出る
 422は、リクエストの形式が正しくない場合に出るエラーです。以下の点を確認してください。
 
 - API側で定義とた通りのリクエストを送っているか。
   - `http://localhost:8000/docs` でAPIの仕様を確認できます。
+  - NOTE: JSONは末尾のカンマはを含めるとエラーになるので注意してください。この記事も参考にしてください。
+    - [JSONの末尾のカンマにご用心](https://plugout.hateblo.jp/entry/2024/02/01/000000)
 
 - `fetch`の第2引数に`{ body: JSON.stringify(data) }`を指定している場合、`headers: { 'Content-Type': 'application/json' }` の指定が必要です。
 
-## Q: APIの呼び出しは`pymysql.err.ProgrammingError: (1146, "xxxx doesn't exist")`というエラーが出る
+## Q3: API呼び出しが500で、エラーログが `pymysql.err.ProgrammingError: (1146, "xxxx doesn't exist")`というエラーが出る
 `models/`に定義した内容がDBに反映されていない可能性があります。マイグレーションスクリプトを実行してみてください。
 
 macの場合: `sh script/migrate_db.sh`
 
 windowsの場合: `script\migrate_db.bat`
 
-## Q: API呼び出しが500 Internal Server Errorで、エラーログが `pydantic.error_wrappers.ValidationError: xxx validation error for xxxxxx` と出る
+## Q4: API呼び出しが500で、エラーログが `pydantic.error_wrappers.ValidationError: xxx validation error for xxxxxx` と出る
 ![20240606124924](https://raw.githubusercontent.com/KuroiCc/kuroi-image-host/main/images/20240606124924.png)
 
 `response_model`で指定しているスキーマを正く作ることができませんでした、このエラーメッセージの場合は、`title`が欠けていると書いています。
@@ -151,9 +153,29 @@ def get_multiple_tasks_with_done(
     return all_result
 ```
 
-## Q: なんかDBにいる正いデータをAPIから返してくれない。
+## Q5: なんかDBにいる正いデータをAPIから返してくれない。
 
 [前のQ](#q-apiの呼び出しはpymysqlerrprogrammingerror-1146-xxxx-doesnt-existというエラーが出る)と同じ状況かもしれないので、とりあえずラベルをチェックしてみてください。
+
+## Q6: DBを操作するすべてのAPI呼び出しが500で、エラーログが `sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize....` と出る
+
+![20240613170715](https://raw.githubusercontent.com/KuroiCc/kuroi-image-host/main/images/20240613170715.png)
+
+ここに注目、
+
+> When initializing mapper Mapper[**Task(tasks)**], expression 'Memo' failed to locate a name ('**Memo**').
+
+一般的には `Task` テーブルに `relationship("Memo", ...)` を使ったけど、`Memo` テーブルの定義が見つからないというエラーです。`api/models/memo.py` とかに定義はしたが、最終的には `main.py` からみて `Memo` がimportされてない場合もこのエラーが出ます。
+
+NOTE: 普通はmain.pyでimport router -> routerでimport crud -> crudでimport model という流れでimportされる。
+
+```python
+class Task(Base):
+    ...
+    memo = relationship("Memo", back_populates="task", cascade="delete")
+```
+
+`memo = relationship("Memo", ...)` を一時的にコメントアウトすると、うまくいけます。
 
 
 ## 備考
