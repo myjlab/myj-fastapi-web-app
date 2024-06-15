@@ -229,7 +229,8 @@ frontend/
 
 - API呼ぶ出し操作は`api.js`に記述
   - `return fetch(...).then(...)...` の感じ
-  - `async/await`は使わない
+  - `async/await`は~~使わない~~ 使用okになりました
+    - ただし、非同期について説明しなくていい
 
 ### 開発について
 - takenはlocalStorageに保存
