@@ -23,6 +23,7 @@ docker-compose up
 <img width="800" alt="cmd.png" src="docs/images/docker-first-up-output.png">
 
 3. **(初回のみ)** 以下のコマンドを実行してDBのテーブルを作成します。
+   - その後は、modelの変更があった場合に実行してください。[ここも参照](#DBのテーブル構造の変更について)
 
 - macの場合
 ```bash
