@@ -11,28 +11,48 @@ import unittest
 from faker import Faker
 from fastapi import status
 from fastapi.testclient import TestClient
+from sqlalchemy import text
 
-from api.db import Base
 from api.main import app
 from tests.utils import setup_testing_db
-
-test_app, engine = setup_testing_db(app)
 
 fake = Faker("ja_JP")
 
 
 class AppTestCase(unittest.TestCase):
     @classmethod
+    def setUpClass(cls):
+        cls.app, cls.engine = setup_testing_db(app)
+
+    @classmethod
     def tearDownClass(cls):
-        Base.metadata.drop_all(bind=engine)
+        cls.engine.dispose()
 
     def setUp(self):
-        self.client = TestClient(test_app)
-        Base.metadata.drop_all(bind=engine)
-        Base.metadata.create_all(bind=engine)
+        self.client = TestClient(self.app)
+        self._reset_database()
 
     def tearDown(self):
-        Base.metadata.drop_all(bind=engine)
+        self._reset_database()
+
+    def _reset_database(self):
+        with self.engine.connect() as connection:
+            # Drop all tables
+            result = connection.execute(
+                text(
+                    """SELECT name FROM sqlite_master
+                    WHERE type='table' AND name != 'sqlite_sequence';"""
+                )
+            )
+            tables = result.fetchall()
+            for table in tables:
+                connection.execute(text(f"DROP TABLE IF EXISTS {table[0]}"))
+
+            # Create tables
+            sql_commands = Path("./init.sql").read_text().split(";")
+            for command in sql_commands:
+                if command.strip():
+                    connection.execute(text(command.strip()))
 
     def create_user(self, data=None):
         if data is None:
