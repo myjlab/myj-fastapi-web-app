@@ -98,6 +98,8 @@ class TestUserRouter(AppTestCase):
     def test_create_user(self):
         res = self.create_user()
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        # response should not contain password
+        self.assertNotIn("password", res.json())
 
     def test_login(self):
         _, login_res = self.create_user_and_login()

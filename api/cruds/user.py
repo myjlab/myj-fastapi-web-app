@@ -1,10 +1,6 @@
 from passlib.context import CryptContext
-from sqlalchemy import select
-from sqlalchemy.engine import Result
+from sqlalchemy import text
 from sqlalchemy.orm import Session
-
-import api.models.user as user_model
-import api.schemas.user as user_schema
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -17,30 +13,56 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def create_user(db: Session, user: user_schema.UserCreate) -> user_model.User:
-    user.password = get_password_hash(user.password)
-    db_user = user_model.User(**user.dict())
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-
-def get_user_by_email(db: Session, email: str) -> user_model.User | None:
-    result: Result = db.execute(
-        select(user_model.User).filter(user_model.User.email == email)
+def create_user(db: Session, user: dict) -> dict:
+    sql = text(
+        """
+        INSERT INTO users (email, nickname, password)
+        VALUES (:email, :nickname, :password)
+        """
     )
-    return result.scalars().first()
+    params = {
+        "email": user.get("email"),
+        "nickname": user.get("nickname"),
+        "password": get_password_hash(user.get("password")),
+    }
+
+    print("DB操作が行われました。")
+    print(f"SQL: {sql}")
+    db.execute(sql, params)
+    db.commit()
+    new_user = get_user_by_email(db, user.get("email"))
+    print(f"DB操作の結果: {new_user}")
+
+    return new_user
+
+
+def get_user_by_email(db: Session, email: str) -> dict | None:
+    sql = text(
+        """
+        SELECT * FROM users
+        WHERE email = :email
+        """
+    )
+    params = {"email": email}
+
+    print("DB操作が行われました。")
+    print(f"SQL: {sql}\nParams: {params}")
+    result = db.execute(sql, params).first()
+    if result is not None:
+        result = result._asdict()
+    print(f"DB操作の結果: {result}")
+
+    return result
 
 
 def authenticate_user(
     db: Session,
     email: str,
     password: str,
-) -> user_model.User | bool:
+) -> dict | bool:
     user = get_user_by_email(db, email)
     if not user:
         return False
-    if not verify_password(password, user.password):
+    if not verify_password(password, user.get("password")):
         return False
     return user
