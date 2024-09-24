@@ -16,5 +16,5 @@ CREATE TABLE tasks (
 
 CREATE TABLE dones (
     id INTEGER PRIMARY KEY,
-    FOREIGN KEY (id) REFERENCES tasks(id)
+    FOREIGN KEY (id) REFERENCES tasks(id) ON DELETE CASCADE
 );
