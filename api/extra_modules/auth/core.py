@@ -63,7 +63,7 @@ def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    email: str = payload.get("sub")
+    email = payload.get("sub")
     if email is None:
         raise credentials_exception
 
