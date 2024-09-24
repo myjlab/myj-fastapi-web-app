@@ -49,7 +49,12 @@ class AppTestCase(unittest.TestCase):
                 connection.execute(text(f"DROP TABLE IF EXISTS {table[0]}"))
 
             # Create tables
-            sql_commands = Path("./init.sql").read_text().split(";")
+            sql_commands = (
+                Path("./init.sql")
+                .read_text()
+                .replace("AUTO_INCREMENT", "AUTOINCREMENT")
+                .split(";")
+            )
             for command in sql_commands:
                 if command.strip():
                     connection.execute(text(command.strip()))
