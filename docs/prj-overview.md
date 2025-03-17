@@ -45,12 +45,6 @@ graph TB
     ROUTE["`**ルーティング**
     fa:fa-file-code *api/routers/**`"]
 
-    SCHEMA["`**API通信スキーマ**
-    fa:fa-file-code *api/schemas/**`"]
-
-    MODEL["`**DBモデル(テーブル構造)**
-    fa:fa-file-code *api/models/**`"]
-
     DB["`**DBインフラ**
     fa:fa-file-code *api/db.py*`"]
 
@@ -66,15 +60,12 @@ graph TB
     end
 
     MAIN　--> ROUTE
-    ROUTE　--> SCHEMA
     ROUTE　--> CRUD
     ROUTE　--> AUTH
     ROUTE　--> DB
     ROUTE  --> IMAGE
-    MODEL --> DB
     CRUD --> DB
-    CRUD --> MODEL
-    CRUD --> SCHEMA
+
 ```
 
 ### モジュール
@@ -86,15 +77,9 @@ graph TB
   - ルーティングの定義
   - HTTPからデータを受け取り、CRUD操作に委譲
   - CRUD操作の結果を返す、適切なHTTPエラーを返す
-- **API通信スキーマ**, `api/schemas/**`
-  - ルーティングで受け取るデータの形を定義
-  - ルーティングで返すデータのスキーマ
 - **CRUD操作**, `api/crud/**`
   - クエリでDBデータを返す
   - ルーティングで受け取ったデータでDBを操作
-    - 基本的に`schemas`を`models`に変換し、`db`に反映
-- **DBモデル(テーブル構造)**, `api/models/**`
-  - DBのテーブル構造を定義
 - **DBインフラ**, `api/db.py`
   - DBの接続情報を定義
   - DBのセッションを管理
@@ -262,4 +247,19 @@ APIコンテナを再ビルドするスクリプト
 開発用にモックデータをAPI経由でDBに挿入するスクリプト
 
 # テストについて
-(WIP)
+
+## 使用フレームワーク
+本プロジェクトでは`unittest`フレームワークを使用してテストを行います。
+
+## テストファイルの場所
+すべてのテストファイルは`/tests`ディレクトリにあります。主なテストファイルは`/tests/test_e2e.py`で、エンドツーエンドのテストが含まれています。
+
+## 実行方法
+テストを実行するには、以下のコマンドを使用します：
+
+```bash
+# テストを実行
+poetry run python -m unittest discover -s tests
+```
+
+このコマンドは、`/tests`ディレクトリ内のすべてのテストファイルを自動的に検出して実行します。
