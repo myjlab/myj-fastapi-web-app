@@ -1,25 +1,52 @@
-from sqlalchemy import select
-from sqlalchemy.engine import Result
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-import api.models.task as task_model
 
-
-def get_done(db: Session, task_id: int) -> task_model.Done | None:
-    result: Result = db.execute(
-        select(task_model.Done).filter(task_model.Done.id == task_id)
+def get_done(db: Session, task_id: int):
+    sql = text(
+        """
+        SELECT * FROM dones
+        WHERE id = :id
+        """
     )
-    return result.scalars().first()
+    params = {"id": task_id}
+
+    print(f"SQL: {sql}\nParams: {params}")
+    result = db.execute(sql, params).first()
+    if result is not None:
+        result = result._asdict()
+    print(f"DB操作の結果: {result}")
+
+    return result
 
 
-def create_done(db: Session, task_id: int) -> task_model.Done:
-    done = task_model.Done(id=task_id)
-    db.add(done)
+def create_done(db: Session, task_id: int):
+    sql = text(
+        """
+        INSERT INTO dones (id)
+        VALUES (:id)
+        """
+    )
+    params = {"id": task_id}
+
+    print(f"SQL: {sql}\nParams: {params}")
+    db.execute(sql, params)
     db.commit()
-    db.refresh(done)
-    return done
+    new_done = get_done(db, task_id)
+    print(f"DB操作の結果: {new_done}")
+
+    return new_done
 
 
-def delete_done(db: Session, original: task_model.Done) -> None:
-    db.delete(original)
+def delete_done(db: Session, original: dict):
+    sql = text(
+        """
+        DELETE FROM dones
+        WHERE id = :id
+        """
+    )
+    params = {"id": original.get("id")}
+
+    print(f"SQL: {sql}\nParams: {params}")
+    db.execute(sql, params)
     db.commit()
