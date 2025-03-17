@@ -19,7 +19,6 @@ def create_task(
         "user_id": user_id,
     }
 
-    print("DB操作が行われました。")
     print(f"SQL: {sql}\nParams: {params}")
     res = db.execute(sql, params)
     db.commit()
@@ -42,7 +41,6 @@ def get_task(
     )
     params = {"id": task_id}
 
-    print("DB操作が行われました。")
     print(f"SQL: {sql}\nParams: {params}")
     result = db.execute(sql, params).first()
     if result is not None:
@@ -72,7 +70,6 @@ def get_task_with_done(
     )
     params = {"id": task_id}
 
-    print("DB操作が行われました。")
     print(f"SQL: {sql}\nParams: {params}")
     result = db.execute(sql, params).first()
     if result is not None:
@@ -102,7 +99,6 @@ def get_multiple_tasks_with_done(
     )
     params = {"user_id": user_id}
 
-    print("DB操作が行われました。")
     print(f"SQL: {sql}\nParams: {params}")
     result = db.execute(sql, params).all()
     result = [task._asdict() for task in result]
@@ -133,7 +129,6 @@ def update_task(
     if task_update.get("img_path") is not None:
         params["img_path"] = task_update.get("img_path")
 
-    print("DB操作が行われました。")
     print(f"SQL: {sql}\nParams: {params}")
     db.execute(sql, params)
     db.commit()
@@ -154,7 +149,6 @@ def delete_task(db: Session, original: dict):
         "id": original.get("id"),
     }
 
-    print("DB操作が行われました。")
     print(f"SQL: {sql}\nParams: {params}")
     db.execute(sql, params)
     db.commit()

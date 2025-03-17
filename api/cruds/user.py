@@ -26,7 +26,6 @@ def create_user(db: Session, user: dict) -> dict:
         "password": get_password_hash(user.get("password")),
     }
 
-    print("DB操作が行われました。")
     print(f"SQL: {sql}")
     db.execute(sql, params)
     db.commit()
@@ -45,7 +44,6 @@ def get_user_by_email(db: Session, email: str) -> dict | None:
     )
     params = {"email": email}
 
-    print("DB操作が行われました。")
     print(f"SQL: {sql}\nParams: {params}")
     result = db.execute(sql, params).first()
     if result is not None:

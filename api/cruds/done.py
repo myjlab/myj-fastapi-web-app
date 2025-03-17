@@ -11,7 +11,6 @@ def get_done(db: Session, task_id: int):
     )
     params = {"id": task_id}
 
-    print("DB操作が行われました。")
     print(f"SQL: {sql}\nParams: {params}")
     result = db.execute(sql, params).first()
     if result is not None:
@@ -30,7 +29,6 @@ def create_done(db: Session, task_id: int):
     )
     params = {"id": task_id}
 
-    print("DB操作が行われました。")
     print(f"SQL: {sql}\nParams: {params}")
     db.execute(sql, params)
     db.commit()
@@ -49,7 +47,6 @@ def delete_done(db: Session, original: dict):
     )
     params = {"id": original.get("id")}
 
-    print("DB操作が行われました。")
     print(f"SQL: {sql}\nParams: {params}")
     db.execute(sql, params)
     db.commit()
