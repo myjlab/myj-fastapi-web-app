@@ -42,7 +42,7 @@ def get_current_user(
     """
     tokenを検証し、userを返します。
 
-    tokenはheaderのAuthorizationかcookieのtokenから取得します。
+    tokenはheaderのAuthorizationから取得します。
     """
 
     credentials_exception = HTTPException(
