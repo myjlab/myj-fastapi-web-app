@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -15,7 +15,6 @@ router = APIRouter()
 
 @router.post("/token")
 def login_for_access_token(
-    response: Response,
     db: Session = Depends(get_db),
     form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> auth_schemas.Token:
@@ -40,13 +39,6 @@ def login_for_access_token(
     access_token = create_access_token(
         data={"sub": user.get("email")},
         expires_delta=access_token_expires,
-    )
-
-    response.set_cookie(
-        key="Authorization",
-        value=access_token,
-        httponly=True,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES,
     )
 
     return auth_schemas.Token(access_token=access_token, token_type="bearer")
