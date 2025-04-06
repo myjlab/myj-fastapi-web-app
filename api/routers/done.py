@@ -16,7 +16,7 @@ def mark_task_as_done(
     current_user: dict = Depends(get_current_user),
 ):
     task = task_crud.get_task(db, task_id=task_id)
-    # 存在したい場合
+    # 存在しない場合
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     # 違うユーザーのタスクを変更しようとした場合
