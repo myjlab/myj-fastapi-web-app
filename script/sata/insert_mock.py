@@ -51,7 +51,9 @@ def insert_mock_task():
     for user, num_of_tasks in zip(user_data, num_of_tasks_for_each_user):
         if num_of_tasks == 0:
             continue
-        login_res = login(user["email"], user["password"])
+        login_json = login(user["email"], user["password"]).json()
+        token = f"{login_json['token_type']} {login_json['access_token']}"
+        token_header = {"Authorization": token}
 
         url = host + "/task"
         res_list = []
@@ -64,7 +66,7 @@ def insert_mock_task():
             res = requests.post(
                 url,
                 json=payload,
-                cookies=login_res.cookies,
+                headers=token_header,
             )
             if not res.ok:
                 print(res.json())
@@ -78,7 +80,7 @@ def insert_mock_task():
             image_res = requests.put(
                 f"{url}/{res.json()['id']}/image",
                 files={"image": ("image.png", fake.image(), "image/png")},
-                cookies=login_res.cookies,
+                headers=token_header,
             )
             if not image_res.ok:
                 print(res.json())
@@ -90,7 +92,7 @@ def insert_mock_task():
         ):
             done_res = requests.put(
                 f"{url}/{res.json()['id']}/done",
-                cookies=login_res.cookies,
+                headers=token_header,
             )
             if not done_res.ok:
                 print(res.json())
