@@ -61,6 +61,7 @@
       })
       .catch((error) => {
         megsBox.innerText = error.message
+        throw error
       })
   }
 </script>
