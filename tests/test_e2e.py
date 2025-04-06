@@ -80,17 +80,23 @@ class AppTestCase(unittest.TestCase):
 
     def create_user_and_login(self, data=None):
         user_res = self.create_user(data)
-        login_res = self.login(
+        login_json = self.login(
             user_res.post_data["email"],
             user_res.post_data["password"],
-        )
-        return user_res, login_res
+        ).json()
 
-    def create_task(self, data=None):
+        token_type = login_json["token_type"]
+        access_token = login_json["access_token"]
+        auth_headers = {
+            "Authorization": f"{token_type} {access_token}",
+        }
+        return user_res, auth_headers
+
+    def create_task(self, auth_headers, data=None):
         """Create a task and return the response"""
         if data is None:
             data = {"title": fake.sentence(nb_words=4)}
-        res = self.client.post("/task", json=data)
+        res = self.client.post("/task", json=data, headers=auth_headers)
 
         if res.status_code == status.HTTP_401_UNAUTHORIZED:
             raise Exception("You need to login first", res)
@@ -107,7 +113,12 @@ class TestUserRouter(AppTestCase):
         self.assertNotIn("password", res.json())
 
     def test_login(self):
-        _, login_res = self.create_user_and_login()
+        user_res = self.create_user()
+        login_res = self.login(
+            user_res.post_data["email"],
+            user_res.post_data["password"],
+        )
+
         res_json = login_res.json()
 
         self.assertEqual(login_res.status_code, status.HTTP_200_OK)
@@ -120,9 +131,6 @@ class TestUserRouter(AppTestCase):
         login_res = self.login(user_res.post_data["email"], "invalid_password")
 
         self.assertEqual(login_res.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    # TODO: test cookie login
-    # TODO: test header login
 
 
 class TestTaskRouter(AppTestCase):
@@ -154,12 +162,14 @@ class TestTaskRouter(AppTestCase):
 
         for _ in range(3):
             self.create_user()
-        user_res, _ = self.create_user_and_login()
+        user_res, auth_headers = self.create_user_and_login()
         user_id = user_res.json()["id"]
 
         for test_name, data, expected_status_code in test_data:
             with self.subTest(test_name):
-                res = self.client.post("/task", json=data)
+                res = self.client.post(
+                    "/task", json=data, headers=auth_headers
+                )
                 self.assertEqual(res.status_code, expected_status_code)
                 if expected_status_code == status.HTTP_200_OK:
                     res_json = res.json()
@@ -172,18 +182,18 @@ class TestTaskRouter(AppTestCase):
 
     def test_create_task_without_login(self):
         with self.assertRaises(Exception) as e:
-            self.create_task()
+            self.create_task(None)
         res = e.exception.args[1]
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_multiple_tasks(self):
-        res_user, _ = self.create_user_and_login()
+        res_user, auth_headers = self.create_user_and_login()
         user_id = res_user.json()["id"]
 
         # Create many tasks
         insert_list = []
         for _ in range(39):
-            res = self.create_task()
+            res = self.create_task(auth_headers)
             insert_list.append(res.json())
 
         # every task should res.user_id=user_id
@@ -193,7 +203,7 @@ class TestTaskRouter(AppTestCase):
         )
 
         # Get the task
-        res = self.client.get("/tasks")
+        res = self.client.get("/tasks", headers=auth_headers)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         res_json = res.json()
         self.assertEqual(
@@ -202,9 +212,9 @@ class TestTaskRouter(AppTestCase):
         )
 
     def test_get_multiple_tasks_with_empty_db(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
-        res = self.client.get("/tasks")
+        res = self.client.get("/tasks", headers=auth_headers)
         res_json = res.json()
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res_json), 0)
@@ -214,22 +224,22 @@ class TestTaskRouter(AppTestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_task(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
         # Create a task
-        created_task = self.create_task()
+        created_task = self.create_task(auth_headers)
         created_task_json = created_task.json()
         task_id = created_task_json["id"]
 
         # Get the task
-        res = self.client.get(f"/task/{task_id}")
+        res = self.client.get(f"/task/{task_id}", headers=auth_headers)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.json(), {**created_task_json, "done": False})
 
     def test_get_non_existent_task(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
-        res = self.client.get("/task/1")
+        res = self.client.get("/task/1", headers=auth_headers)
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_task_with_not_logged_in(self):
@@ -237,77 +247,85 @@ class TestTaskRouter(AppTestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_other_user_task(self):
-        self.create_user_and_login()
-        created_task = self.create_task()
+        _, user1_auth_headers = self.create_user_and_login()
+        created_task = self.create_task(user1_auth_headers)
         created_task_json = created_task.json()
         task_id = created_task_json["id"]
 
-        self.create_user_and_login()
-        res = self.client.get(f"/task/{task_id}")
+        _, user2_auth_headers = self.create_user_and_login()
+        res = self.client.get(f"/task/{task_id}", headers=user2_auth_headers)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_task(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
-        created_task = self.create_task()
+        created_task = self.create_task(auth_headers)
         task_id = created_task.json()["id"]
 
         update_data = {"title": fake.sentence(nb_words=4)}
-        res = self.client.put(f"/task/{task_id}", json=update_data)
+        res = self.client.put(
+            f"/task/{task_id}", json=update_data, headers=auth_headers
+        )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         updated_task = res.json()
-        new_task = self.client.get(f"/task/{task_id}")
+        new_task = self.client.get(f"/task/{task_id}", headers=auth_headers)
 
         self.assertEqual(updated_task["title"], update_data["title"])
         self.assertEqual({**updated_task, "done": False}, new_task.json())
 
     def test_update_non_existent_task(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
         update_data = {"title": fake.sentence(nb_words=4)}
-        res = self.client.put("/task/1", json=update_data)
+        res = self.client.put(
+            "/task/1", json=update_data, headers=auth_headers
+        )
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_update_task_withou_login(self):
+    def test_update_task_without_login(self):
         update_data = {"title": fake.sentence(nb_words=4)}
         res = self.client.put("/task/1", json=update_data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_other_user_task(self):
-        self.create_user_and_login()
-        created_task = self.create_task()
+        _, user1_auth_headers = self.create_user_and_login()
+        created_task = self.create_task(user1_auth_headers)
         task_id = created_task.json()["id"]
 
-        self.create_user_and_login()
+        _, user2_auth_headers = self.create_user_and_login()
         update_data = {"title": fake.sentence(nb_words=4)}
-        res = self.client.put(f"/task/{task_id}", json=update_data)
+        res = self.client.put(
+            f"/task/{task_id}", json=update_data, headers=user2_auth_headers
+        )
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_task(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
         # Create a task
-        created_task = self.create_task()
+        created_task = self.create_task(auth_headers)
         task_id = created_task.json()["id"]
 
         # Check if the task is created
-        res = self.client.get(f"/task/{task_id}")
+        res = self.client.get(f"/task/{task_id}", headers=auth_headers)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         # Delete the task
-        res = self.client.delete(f"/task/{task_id}")
+        res = self.client.delete(f"/task/{task_id}", headers=auth_headers)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         # Check if the task is deleted
-        res = self.client.get(f"/task/{task_id}")
+        res = self.client.get(f"/task/{task_id}", headers=auth_headers)
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_non_existent_task(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
         non_existent_task_id = 9999
-        res = self.client.delete(f"/task/{non_existent_task_id}")
+        res = self.client.delete(
+            f"/task/{non_existent_task_id}", headers=auth_headers
+        )
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_task_without_login(self):
@@ -315,42 +333,46 @@ class TestTaskRouter(AppTestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_delete_other_user_task(self):
-        self.create_user_and_login()
-        created_task = self.create_task()
+        _, user1_auth_headers = self.create_user_and_login()
+        created_task = self.create_task(user1_auth_headers)
         task_id = created_task.json()["id"]
 
-        self.create_user_and_login()
-        res = self.client.delete(f"/task/{task_id}")
+        _, user2_auth_headers = self.create_user_and_login()
+        res = self.client.delete(
+            f"/task/{task_id}", headers=user2_auth_headers
+        )
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_done_flag(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
         # Create a task
-        created_task = self.create_task()
+        created_task = self.create_task(auth_headers)
         task_id = created_task.json()["id"]
 
         # 完了フラグを立てる
-        res = self.client.put(f"/task/{task_id}/done")
+        res = self.client.put(f"/task/{task_id}/done", headers=auth_headers)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         # 既に完了フラグが立っているので400を返却
-        res = self.client.put(f"/task/{task_id}/done")
+        res = self.client.put(f"/task/{task_id}/done", headers=auth_headers)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
         # 完了フラグを外す
-        res = self.client.delete(f"/task/{task_id}/done")
+        res = self.client.delete(f"/task/{task_id}/done", headers=auth_headers)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         # 既に完了フラグが外れているので404を返却
-        res = self.client.delete(f"/task/{task_id}/done")
+        res = self.client.delete(f"/task/{task_id}/done", headers=auth_headers)
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_done_flag_with_non_existent_task(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
         non_existent_task_id = 9999
-        res = self.client.put(f"/task/{non_existent_task_id}/done")
+        res = self.client.put(
+            f"/task/{non_existent_task_id}/done", headers=auth_headers
+        )
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_done_flag_without_login(self):
@@ -361,37 +383,46 @@ class TestTaskRouter(AppTestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_done_flag_other_user_task(self):
-        self.create_user_and_login()
-        task_id_1 = self.create_task().json()["id"]
-        task_id_2 = self.create_task().json()["id"]
+        _, user1_auth_headers = self.create_user_and_login()
+        task_id_1 = self.create_task(user1_auth_headers).json()["id"]
+        task_id_2 = self.create_task(user1_auth_headers).json()["id"]
 
-        self.client.put(f"/task/{task_id_2}/done")
+        self.client.put(f"/task/{task_id_2}/done", headers=user1_auth_headers)
 
-        self.create_user_and_login()
-        res = self.client.put(f"/task/{task_id_1}/done")
+        _, user2_auth_headers = self.create_user_and_login()
+        res = self.client.put(
+            f"/task/{task_id_1}/done", headers=user2_auth_headers
+        )
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
-        res = self.client.delete(f"/task/{task_id_1}/done")
+        res = self.client.delete(
+            f"/task/{task_id_1}/done", headers=user2_auth_headers
+        )
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
-        res = self.client.delete(f"/task/{task_id_2}/done")
+        res = self.client.delete(
+            f"/task/{task_id_2}/done", headers=user2_auth_headers
+        )
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_add_image_to_task(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
         fake_image = fake.image()
 
-        created_task = self.create_task()
+        created_task = self.create_task(auth_headers)
         task_id = created_task.json()["id"]
 
         res = self.client.put(
             f"/task/{task_id}/image",
             files={"image": ("image.jpg", fake_image, "image/jpeg")},
+            headers=auth_headers,
         )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        task_detail = self.client.get(f"/task/{task_id}").json()
+        task_detail = self.client.get(
+            f"/task/{task_id}", headers=auth_headers
+        ).json()
         self.assertEqual(task_detail["img_path"], res.json()["img_path"])
 
         updated_task = res.json()
@@ -403,14 +434,15 @@ class TestTaskRouter(AppTestCase):
         self.assertEqual(fake_image, image_res.content)
 
     def test_add_heif_image_to_task(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
         fake_heif_image = fake.image(image_format="heif")
-        task_id = self.create_task().json()["id"]
+        task_id = self.create_task(auth_headers).json()["id"]
 
         res = self.client.put(
             f"/task/{task_id}/image",
             files={"image": ("image.heic", fake_heif_image, "image/heic")},
+            headers=auth_headers,
         )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -423,13 +455,14 @@ class TestTaskRouter(AppTestCase):
         self.assertEqual("image/jpeg", image_res.headers["content-type"])
 
     def test_add_image_to_task_with_non_existent_task(self):
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
 
         fake_image = fake.image()
 
         res = self.client.put(
             "/task/1/image",
             files={"image": ("image.jpg", fake_image, "image/jpeg")},
+            headers=auth_headers,
         )
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -443,14 +476,15 @@ class TestTaskRouter(AppTestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_add_image_to_task_with_other_user_task(self):
-        self.create_user_and_login()
-        task_id = self.create_task().json()["id"]
+        _, auth_headers = self.create_user_and_login()
+        task_id = self.create_task(auth_headers).json()["id"]
 
-        self.create_user_and_login()
+        _, auth_headers = self.create_user_and_login()
         fake_image = fake.image()
         res = self.client.put(
             f"/task/{task_id}/image",
             files={"image": ("image.jpg", fake_image, "image/jpeg")},
+            headers=auth_headers,
         )
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
