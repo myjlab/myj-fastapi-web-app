@@ -57,6 +57,7 @@
     })
     .catch(error => {
       location.href = '/index.html'
+      throw error
     })
 
   const deleteTask = () => {
@@ -71,6 +72,7 @@
       })
       .catch(error => {
         alert('削除に失敗しました')
+        throw error
       })
   }
 </script>
