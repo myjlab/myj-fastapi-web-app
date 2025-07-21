@@ -1,95 +1,88 @@
 <!DOCTYPE html>
 <html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>タスク編集 | TODOアプリ</title>
+    <!-- cssファイルをimport -->
+    <link rel="stylesheet" href="/css/general.css" />
 
-<head>
-  <meta charset="UTF-8">
-  <title>タスク編集 | TODOアプリ</title>
-  <!-- cssファイルをimport -->
-  <link rel="stylesheet" href="/css/general.css">
+    <!-- jsファイルをimport -->
+    <script type="text/javascript" src="/js/general.js"></script>
+    <script type="text/javascript" src="/js/api.js"></script>
+  </head>
 
-  <!-- jsファイルをimport -->
-  <script type="text/javascript" src="/js/general.js"></script>
-  <script type="text/javascript" src="/js/api.js"></script>
-</head>
+  <body>
+    <h2>タスク編集</h2>
+    <div id="task-input">
+      <label for="title">タイトル</label>
+      <input type="text" id="title" name="title" required />
+      <br />
+      <label for="due_date">期限</label>
+      <input type="date" id="due_date" name="due_date" />
+      <br />
+      <label for="task-image-input">新しい画像</label>
+      <input type="file" id="task-image-input" name="img_path" />
+      <br /><br />
+    </div>
+    <div id="task-image"></div>
+    <button onclick="updateTask()">更新</button>
+  </body>
 
-<body>
-
-  <h2>タスク編集</h2>
-  <div id="task-input">
-    <label for="title">タイトル</label>
-    <input type="text" id="title" name="title" required>
-    <br />
-    <label for="due_date">期限</label>
-    <input type="date" id="due_date" name="due_date">
-    <br />
-    <label for="task-image-input">新しい画像</label>
-    <input type="file" id="task-image-input" name="img_path">
-    <br /><br />
-  </div>
-  <div id="task-image">
-  </div>
-  <button onclick="updateTask()">更新</button>
-</body>
-
-<script>
-  // ログインしていない場合、ログインページに移動
-  if (!checkLogin()) {
-    handleLoginError()
-  }
-
-  const taskId = new URLSearchParams(location.search).get('taskId')
-  if (!taskId) {
-    alert('タスクIDが指定されていません')
-    location.href = '/index.html'
-  }
-  console.log("taskId:", taskId)
-  const titleInput = document.getElementById('title')
-  const dueDateInput = document.getElementById('due_date')
-  const taskImageInput = document.getElementById('task-image-input')
-  const taskImageDiv = document.getElementById('task-image')
-
-
-  getTaskDetailApi(taskId).then(data => {
-    console.log("data:", data)
-    titleInput.value = data.title
-    dueDateInput.value = data.due_date
-    if (data.img_path) {
-      taskImageDiv.innerHTML = `
-        <img src="${API_HOST}${data.img_path}" alt="タスク画像">
-      `
-    }
-  })
-
-  const updateTask = () => {
-    const title = document.getElementById('title').value
-    const dueDate = document.getElementById('due_date').value
-    const taskImage = document.getElementById('task-image-input')
-
-    const updateData = {
-      title: title,
-      due_date: dueDate,
-    }
-    updateTaskApi(taskId, updateData)
-      .then((data) => {
-        console.log("data:", data)
-        alert('タスクを更新しました')
-      })
-
-    console.log('taskImage:', taskImage.files)
-    if (taskImage.files.length === 0) {
-      console.log('画像がありません')
-      return
+  <script>
+    // ログインしていない場合、ログインページに移動
+    if (!checkLogin()) {
+      handleLoginError()
     }
 
-    updateTaskImageApi(taskId, taskImage.files[0])
-      .then(data => {
-        console.log("data:", data)
-        alert('タスクの画像を更新しました')
+    const taskId = new URLSearchParams(location.search).get('taskId')
+    if (!taskId) {
+      alert('タスクIDが指定されていません')
+      location.href = '/index.html'
+    }
+    console.log('taskId:', taskId)
+    const titleInput = document.getElementById('title')
+    const dueDateInput = document.getElementById('due_date')
+    const taskImageInput = document.getElementById('task-image-input')
+    const taskImageDiv = document.getElementById('task-image')
+
+    const loadTaskForEdit = async () => {
+      const data = await getTaskDetailApi(taskId)
+      console.log('data:', data)
+      titleInput.value = data.title
+      dueDateInput.value = data.due_date
+      if (data.img_path) {
         taskImageDiv.innerHTML = `
           <img src="${API_HOST}${data.img_path}" alt="タスク画像">
         `
-      })
-  }
-</script>
+      }
+    }
+    loadTaskForEdit()
 
+    const updateTask = async () => {
+      const title = document.getElementById('title').value
+      const dueDate = document.getElementById('due_date').value
+      const taskImage = document.getElementById('task-image-input')
+
+      const updateData = {
+        title: title,
+        due_date: dueDate,
+      }
+      const data = await updateTaskApi(taskId, updateData)
+      console.log('data:', data)
+      alert('タスクを更新しました')
+
+      console.log('taskImage:', taskImage.files)
+      if (taskImage.files.length === 0) {
+        console.log('画像がありません')
+        return
+      }
+
+      const imageData = await updateTaskImageApi(taskId, taskImage.files[0])
+      console.log('imageData:', imageData)
+      alert('タスクの画像を更新しました')
+      taskImageDiv.innerHTML = `
+        <img src="${API_HOST}${imageData.img_path}" alt="タスク画像">
+      `
+    }
+  </script>
 </html>

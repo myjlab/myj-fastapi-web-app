@@ -1,80 +1,81 @@
 <!DOCTYPE html>
 <html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>詳細ページ | TODOアプリ</title>
+    <!-- cssファイルをimport -->
+    <link rel="stylesheet" href="/css/general.css" />
 
-<head>
-  <meta charset="UTF-8">
-  <title>詳細ページ | TODOアプリ</title>
-  <!-- cssファイルをimport -->
-  <link rel="stylesheet" href="/css/general.css">
+    <!-- jsファイルをimport -->
+    <script type="text/javascript" src="/js/general.js"></script>
+    <script type="text/javascript" src="/js/api.js"></script>
+  </head>
 
-  <!-- jsファイルをimport -->
-  <script type="text/javascript" src="/js/general.js"></script>
-  <script type="text/javascript" src="/js/api.js"></script>
-</head>
+  <body>
+    <h2>タスク詳細</h2>
+    <div id="task-detail">
+      <!-- ここにタスクが入る -->
+    </div>
+    <div id="task-image"></div>
+    <a id="edit-link">
+      <button>編集</button>
+    </a>
+    <div style="margin-top: 10px">
+      <button class="delete-button" onclick="deleteTask()">削除</button>
+    </div>
+  </body>
 
-<body>
-  <h2>タスク詳細</h2>
-  <div id="task-detail">
-    <!-- ここにタスクが入る -->
-  </div>
-  <div id="task-image">
-  </div>
-  <a id="edit-link">
-    <button>編集</button>
-  </a>
-  <div style="margin-top: 10px;"><button class="delete-button" onclick="deleteTask()">削除</button></div>
+  <script>
+    // ログインしていない場合、ログインページに移動
+    if (!checkLogin()) {
+      handleLoginError()
+    }
 
-</body>
+    const taskId = new URLSearchParams(location.search).get('taskId')
+    if (!taskId) {
+      alert('タスクIDが指定されていません')
+      location.href = '/index.html'
+    }
+    document.getElementById('edit-link').href = `/task-update.html?taskId=${taskId}`
+    console.log('taskId:', taskId)
 
-<script>
-  // ログインしていない場合、ログインページに移動
-  if (!checkLogin()) {
-    handleLoginError()
-  }
-
-  const taskId = new URLSearchParams(location.search).get('taskId')
-  if (!taskId) {
-    alert('タスクIDが指定されていません')
-    location.href = '/index.html'
-  }
-  document.getElementById('edit-link').href = `/task-update.html?taskId=${taskId}`
-  console.log("taskId:", taskId)
-
-  getTaskDetailApi(taskId)
-    .then(data => {
-      console.log("data:", data)
-      const taskDetail = document.getElementById('task-detail')
-      taskDetail.innerHTML = `
+    const loadTaskDetail = async () => {
+      try {
+        const data = await getTaskDetailApi(taskId)
+        console.log('data:', data)
+        const taskDetail = document.getElementById('task-detail')
+        taskDetail.innerHTML = `
       <h3>タイトル: ${data.title}</h3>
       <p>期限: ${data.due_date ? data.due_date : 'なし'}</p>
     `
-      if (data.img_path) { // 画像がある場合
-        const taskImage = document.getElementById('task-image')
-        taskImage.innerHTML = `
+        if (data.img_path) {
+          // 画像がある場合
+          const taskImage = document.getElementById('task-image')
+          taskImage.innerHTML = `
         <img src="${API_HOST}${data.img_path}" alt="タスク画像">
       `
+        }
+      } catch (error) {
+        location.href = '/index.html'
+        throw error
       }
-    })
-    .catch(error => {
-      location.href = '/index.html'
-      throw error
-    })
-
-  const deleteTask = () => {
-    const result = confirm('本当に削除しますか？')
-    if (!result) {
-      return
     }
-    deleteTaskApi(taskId)
-      .then(data => {
+    loadTaskDetail()
+
+    const deleteTask = async () => {
+      const result = confirm('本当に削除しますか？')
+      if (!result) {
+        return
+      }
+
+      try {
+        const data = await deleteTaskApi(taskId)
         alert('削除しました')
         location.href = '/index.html'
-      })
-      .catch(error => {
+      } catch (error) {
         alert('削除に失敗しました')
         throw error
-      })
-  }
-</script>
-
+      }
+    }
+  </script>
 </html>
