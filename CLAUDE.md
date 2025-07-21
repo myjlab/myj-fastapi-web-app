@@ -1,6 +1,7 @@
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Also see @docs/prj-overview.md for an overview of the project.
 
 ## Project Architecture
 
