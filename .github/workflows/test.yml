@@ -2,22 +2,10 @@ name: Backend Tests
 
 on:
   pull_request:
-    paths:
-      - 'api/**'
-      - 'tests/**'
-      - 'pyproject.toml'
-      - 'requirements.txt'
-      - 'init.sql'
   push:
     branches:
       - main
       - 'develop/**'
-    paths:
-      - 'api/**'
-      - 'tests/**'
-      - 'pyproject.toml'
-      - 'requirements.txt'
-      - 'init.sql'
   workflow_dispatch:
 
 jobs:
