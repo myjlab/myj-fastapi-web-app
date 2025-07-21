@@ -9,7 +9,7 @@ on:
       - 'requirements.txt'
       - 'init.sql'
   push:
-    branches: 
+    branches:
       - main
       - 'develop/**'
     paths:
@@ -18,54 +18,55 @@ on:
       - 'pyproject.toml'
       - 'requirements.txt'
       - 'init.sql'
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
-      id: setup-python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Set up Python 3.11
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Cache Poetry dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pypoetry
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-poetry-
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
 
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: latest
-        virtualenvs-create: true
-        virtualenvs-in-project: true
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
 
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v3
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
-    - name: Install dependencies
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
 
-    - name: Install project
-      run: poetry install --no-interaction
+      - name: Install project
+        run: poetry install --no-interaction
 
-    - name: Run tests
-      run: |
-        poetry run python -m unittest discover -s tests
+      - name: Run tests
+        run: |
+          poetry run python -m unittest discover -s tests
 
-    - name: Run linting (if Black is configured)
-      run: |
-        poetry run black --check api/ tests/ || echo "Black not available or formatting issues found"
-      continue-on-error: true
+      - name: Run linting (if Black is configured)
+        run: |
+          poetry run black --check api/ tests/ || echo "Black not available or formatting issues found"
+        continue-on-error: true
