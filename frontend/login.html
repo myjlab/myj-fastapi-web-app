@@ -1,69 +1,63 @@
 <!DOCTYPE html>
 <html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ログイン | TODOアプリ</title>
+    <!-- cssファイルをimport -->
+    <link rel="stylesheet" href="/css/general.css" />
 
-<head>
-  <meta charset="UTF-8">
-  <title>ログイン | TODOアプリ</title>
-  <!-- cssファイルをimport -->
-  <link rel="stylesheet" href="/css/general.css">
+    <!-- jsファイルをimport -->
+    <script type="text/javascript" src="/js/general.js"></script>
+    <script type="text/javascript" src="/js/api.js"></script>
+  </head>
 
-  <!-- jsファイルをimport -->
-  <script type="text/javascript" src="/js/general.js"></script>
-  <script type="text/javascript" src="/js/api.js"></script>
-</head>
-
-<body>
-
-  <div class="login-container">
-    <h1>ログイン</h1>
-    <div>
-      <div id="megs" style="color: red;">&nbsp;</div>
-      <label for="email">メールアドレス:</label>
-      <input type="email" id="email" name="email" required>
-      <br />
-      <label for="password">パスワード:</label>
-      <input type="password" id="password" name="password" required>
-      <br /><br />
-      <button onclick="login()">ログイン</button>
-      <a href="/signup.html">
-        <button>新規登録</button>
-      </a>
+  <body>
+    <div class="login-container">
+      <h1>ログイン</h1>
+      <div>
+        <div id="megs" style="color: red">&nbsp;</div>
+        <label for="email">メールアドレス:</label>
+        <input type="email" id="email" name="email" required />
+        <br />
+        <label for="password">パスワード:</label>
+        <input type="password" id="password" name="password" required />
+        <br /><br />
+        <button onclick="login()">ログイン</button>
+        <a href="/signup.html">
+          <button>新規登録</button>
+        </a>
+      </div>
     </div>
+  </body>
 
-  </div>
-
-</body>
-
-<script>
-  if (checkLogin()) {
-    location.href = "/index.html"
-  }
-
-  const login = () => {
-    // フォームの値を取得
-    // .trim()で前後の空白を削除
-    const email = document.getElementById('email').value.trim()
-    const password = document.getElementById('password').value
-
-    // メッセージを表示するための要素を取得
-    const megsBox = document.getElementById('megs')
-
-    // 全ての項目が入力されているかチェック
-    if (email === '' || password === '') {
-      megsBox.innerText = '全ての項目を入力してください'
-      return
+  <script>
+    if (checkLogin()) {
+      location.href = '/index.html'
     }
 
-    // APIにリクエストを送信
-    loginApi(email, password)
-      .then((data) => {
+    const login = async () => {
+      // フォームの値を取得
+      // .trim()で前後の空白を削除
+      const email = document.getElementById('email').value.trim()
+      const password = document.getElementById('password').value
+
+      // メッセージを表示するための要素を取得
+      const megsBox = document.getElementById('megs')
+
+      // 全ての項目が入力されているかチェック
+      if (email === '' || password === '') {
+        megsBox.innerText = '全ての項目を入力してください'
+        return
+      }
+
+      try {
+        // APIにリクエストを送信
+        const data = await loginApi(email, password)
         location.href = '/index.html'
-      })
-      .catch((error) => {
+      } catch (error) {
         megsBox.innerText = error.message
         throw error
-      })
-  }
-</script>
-
+      }
+    }
+  </script>
 </html>

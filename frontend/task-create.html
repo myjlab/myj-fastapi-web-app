@@ -1,71 +1,67 @@
 <!DOCTYPE html>
 <html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>タスク新規作成 | TODOアプリ</title>
+    <!-- cssファイルをimport -->
+    <link rel="stylesheet" href="/css/general.css" />
 
-<head>
-  <meta charset="UTF-8">
-  <title>タスク新規作成 | TODOアプリ</title>
-  <!-- cssファイルをimport -->
-  <link rel="stylesheet" href="/css/general.css">
+    <!-- jsファイルをimport -->
+    <script type="text/javascript" src="/js/general.js"></script>
+    <script type="text/javascript" src="/js/api.js"></script>
+  </head>
 
-  <!-- jsファイルをimport -->
-  <script type="text/javascript" src="/js/general.js"></script>
-  <script type="text/javascript" src="/js/api.js"></script>
-</head>
+  <body>
+    <h2>タスク新規作成</h2>
+    <div id="megs" style="color: red">&nbsp;</div>
+    <div id="task-input">
+      <label for="title">タイトル</label>
+      <input type="text" id="title" name="title" required />
+      <br />
+      <label for="due_date">期限</label>
+      <input type="date" id="due-date" name="due_date" />
+      <br />
+      <label for="task-image-input">画像</label>
+      <input type="file" id="task-image-input" name="img_path" />
+      <br /><br />
+    </div>
+    <button onclick="createTask()">作成</button>
+  </body>
 
-<body>
-
-  <h2>タスク新規作成</h2>
-  <div id="megs" style="color: red;">&nbsp;</div>
-  <div id="task-input">
-    <label for="title">タイトル</label>
-    <input type="text" id="title" name="title" required>
-    <br />
-    <label for="due_date">期限</label>
-    <input type="date" id="due-date" name="due_date">
-    <br />
-    <label for="task-image-input">画像</label>
-    <input type="file" id="task-image-input" name="img_path">
-    <br /><br />
-  </div>
-  <button onclick="createTask()">作成</button>
-</body>
-
-<script>
-  // ログインしていない場合、ログインページに移動
-  if (!checkLogin()) {
-    handleLoginError()
-  }
-
-  const createTask = () => {
-    const megsDiv = document.getElementById('megs')
-
-    const title = document.getElementById('title').value
-    if (!title) {
-      megsDiv.innerText = 'タイトルを入力してください'
-      return
+  <script>
+    // ログインしていない場合、ログインページに移動
+    if (!checkLogin()) {
+      handleLoginError()
     }
-    const dueDate = document.getElementById('due-date').value
-    const taskImageInput = document.getElementById('task-image-input')
 
-    const taskData = {
-      title: title,
-      due_date: dueDate ? dueDate : null
-    }
-    console.log("taskData:", taskData)
-    createTaskApi(taskData)
-      .then(data => {
-        console.log("data:", data)
+    const createTask = async () => {
+      const megsDiv = document.getElementById('megs')
 
-        // 画像がある場合は、画像をアップロード
-        if (taskImageInput.files.length !== 0) {
-          updateTaskImageApi(data.id, taskImageInput.files[0])
-        }
+      const title = document.getElementById('title').value
+      if (!title) {
+        megsDiv.innerText = 'タイトルを入力してください'
+        return
+      }
+      const dueDate = document.getElementById('due-date').value
+      const taskImageInput = document.getElementById('task-image-input')
+
+      const taskData = {
+        title: title,
+        due_date: dueDate ? dueDate : null,
+      }
+
+      console.log('taskData:', taskData)
+      const data = await createTaskApi(taskData)
+      console.log('data:', data)
+
+      // 画像がある場合は、画像をアップロード
+      if (taskImageInput.files.length !== 0) {
+        await updateTaskImageApi(data.id, taskImageInput.files[0])
+      } else {
         console.log('画像がありません')
-        alert('タスクを作成しました')
-        location.href = '/index.html'
-      })
-  }
-
-</script>
-
+      }
+      alert('タスクを作成しました')
+      location.href = '/index.html'
+    }
+  </script>
 </html>

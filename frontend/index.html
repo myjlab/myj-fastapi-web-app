@@ -1,63 +1,65 @@
 <!DOCTYPE html>
 <html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>トップページ | TODOアプリ</title>
+    <!-- cssファイルをimport -->
+    <link rel="stylesheet" href="/css/general.css" />
 
-<head>
-  <meta charset="UTF-8">
-  <title>トップページ | TODOアプリ</title>
-  <!-- cssファイルをimport -->
-  <link rel="stylesheet" href="/css/general.css">
+    <!-- jsファイルをimport -->
+    <script type="text/javascript" src="/js/general.js"></script>
+    <script type="text/javascript" src="/js/api.js"></script>
+  </head>
 
-  <!-- jsファイルをimport -->
-  <script type="text/javascript" src="/js/general.js"></script>
-  <script type="text/javascript" src="/js/api.js"></script>
-</head>
+  <body>
+    <div>
+      <h1 id="welcome"></h1>
+      <button onclick="logout()">ログアウト</button>
+    </div>
 
-<body>
-  <div>
-    <h1 id="welcome"></h1>
-    <button onclick="logout()">ログアウト</button>
-  </div>
+    <h2>タスク一覧</h2>
+    <a href="/task-create.html">
+      <button>タスクを作成</button>
+    </a>
 
-  <h2>タスク一覧</h2>
-  <a href="/task-create.html">
-    <button>タスクを作成</button>
-  </a>
+    <div id="task-list">
+      <!-- ここにタスクが入る -->
+    </div>
+  </body>
 
-  <div id="task-list">
-    <!-- ここにタスクが入る -->
-  </div>
-
-</body>
-
-<script>
-  // ログインしていない場合、ログインページに移動
-  if (!checkLogin()) {
-    handleLoginError()
-  }
-
-
-  // ユーザー情報を取得
-  getMeApi().then(data => {
-    console.log("data:", data)
-    const welcomeH1 = document.getElementById('welcome')
-    welcomeH1.innerText = `ようこそ、${data.nickname}さん`
-  })
-
-
-  // タスクのチェックボックスがクリックされたときの処理
-  const updateTaskDoneStatus = (taskId, checkboxId) => {
-    const checkbox = document.getElementById(checkboxId)
-
-    if (checkbox.checked) {
-      doneTaskApi(taskId)
-    } else {
-      undoneTaskApi(taskId)
+  <script>
+    // ログインしていない場合、ログインページに移動
+    if (!checkLogin()) {
+      handleLoginError()
     }
-  }
 
-  // タスク一覧を取得
-  getAllTasksApi()
-    .then((data) => {
+    // ユーザー情報を取得
+    const loadUserInfo = async () => {
+      try {
+        const data = await getMeApi()
+        console.log('data:', data)
+        const welcomeH1 = document.getElementById('welcome')
+        welcomeH1.innerText = `ようこそ、${data.nickname}さん`
+      } catch (error) {
+        console.error('Failed to load user info:', error)
+      }
+    }
+    loadUserInfo()
+
+    // タスクのチェックボックスがクリックされたときの処理
+    const updateTaskDoneStatus = async (taskId, checkboxId) => {
+      const checkbox = document.getElementById(checkboxId)
+
+      if (checkbox.checked) {
+        await doneTaskApi(taskId)
+      } else {
+        await undoneTaskApi(taskId)
+      }
+    }
+
+    // タスク一覧を取得
+    const loadTasks = async () => {
+      const data = await getAllTasksApi()
       const taskList = document.getElementById('task-list')
       data.forEach(task => {
         const taskDiv = document.createElement('div')
@@ -71,8 +73,7 @@
       `
         taskList.appendChild(taskDiv)
       })
-    })
-
-</script>
-
+    }
+    loadTasks()
+  </script>
 </html>
